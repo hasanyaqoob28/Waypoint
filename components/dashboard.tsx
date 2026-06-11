@@ -104,32 +104,32 @@ export function Dashboard() {
             telling you when to leave, which gate, what your baggage carousel is,
             and what to do during the gaps.
           </p>
+
+          {/* Three key value props */}
+          <div className="relative mt-5 grid gap-2.5">
+            {DASHBOARD_FEATURES.map((feature) => (
+              <div
+                key={feature.title}
+                className="rounded-xl border border-border/50 bg-background/40 p-3"
+              >
+                <div className="flex items-start gap-2.5">
+                  <span className="flex size-7 items-center justify-center rounded-lg bg-secondary text-foreground">
+                    <feature.icon className="size-3.5" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[12px] font-semibold text-foreground">
+                      {feature.title}
+                    </p>
+                    <p className="text-[11px] leading-relaxed text-muted-foreground">
+                      {feature.body}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </header>
-
-      {/* Three key value props */}
-      <div className="mb-6 grid gap-2.5">
-        {DASHBOARD_FEATURES.map((feature) => (
-          <div
-            key={feature.title}
-            className="rounded-2xl border border-border bg-card/70 p-4"
-          >
-            <div className="flex items-start gap-3">
-              <span className="flex size-8 items-center justify-center rounded-lg bg-secondary text-foreground">
-                <feature.icon className="size-4" />
-              </span>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-foreground">
-                  {feature.title}
-                </p>
-                <p className="text-[12px] leading-relaxed text-muted-foreground">
-                  {feature.body}
-                </p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] lg:items-start lg:gap-8">
         {/* Left panel: the input */}
