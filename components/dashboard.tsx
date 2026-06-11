@@ -72,70 +72,71 @@ export function Dashboard() {
 
   return (
     <div className="mx-auto min-h-screen w-full max-w-6xl px-4 pb-16 pt-6 lg:px-8">
-      {!activeTrip && (
-        <header className="mb-6">
-          <div className="glass-panel relative overflow-hidden rounded-3xl border border-border p-5 shadow-lg lg:p-6">
+      <header className="mb-6">
+        <div className="glass-panel relative overflow-hidden rounded-3xl border border-border p-5 shadow-lg lg:p-6">
           <div
             aria-hidden
             className="pointer-events-none absolute -right-16 -top-20 size-64 rounded-full bg-primary/20 blur-3xl"
           />
-          <div className="relative grid gap-6 lg:grid-cols-[1fr_280px] lg:items-start">
-            <div>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-                <span className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/30">
-                  <Navigation className="size-5" />
-                </span>
-                <div className="min-w-0">
-                  <h1 className="text-xl font-bold tracking-tight text-foreground lg:text-2xl">
-                    Waypoint
-                  </h1>
-                  <p className="text-[12px] text-muted-foreground lg:text-sm">
-                    Your whole trip, in one calm timeline
-                  </p>
-                </div>
-                <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-medium text-accent">
-                  <span className="relative flex size-2">
-                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-70" />
-                    <span className="relative inline-flex size-2 rounded-full bg-accent" />
-                  </span>
-                  Live sync
-                </span>
-              </div>
-              <p className="relative mt-4 max-w-2xl text-[13px] leading-relaxed text-muted-foreground text-pretty lg:text-sm">
+          {/* Brand bar — always visible */}
+          <div className="relative flex flex-wrap items-center gap-x-4 gap-y-3">
+            <span className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/30">
+              <Navigation className="size-5" />
+            </span>
+            <div className="min-w-0">
+              <h1 className="text-xl font-bold tracking-tight text-foreground lg:text-2xl">
+                Waypoint
+              </h1>
+              <p className="text-[12px] text-muted-foreground lg:text-sm">
+                Your whole trip, in one calm timeline
+              </p>
+            </div>
+            <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-medium text-accent">
+              <span className="relative flex size-2">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-70" />
+                <span className="relative inline-flex size-2 rounded-full bg-accent" />
+              </span>
+              Live sync
+            </span>
+          </div>
+
+          {/* Explanatory text and feature boxes — only when no trip is active */}
+          {!activeTrip && (
+            <div className="relative mt-6 grid gap-6 lg:grid-cols-[1fr_280px] lg:items-start">
+              <p className="max-w-2xl text-[13px] leading-relaxed text-muted-foreground text-pretty lg:text-sm">
                 Stop digging through emails on travel day. Paste your booking
                 confirmations and Waypoint becomes your single source of truth —
                 telling you when to leave, which gate, what your baggage carousel is,
                 and what to do during the gaps.
               </p>
-            </div>
 
-            {/* Three key value props — right column */}
-            <div className="grid gap-2.5">
-              {DASHBOARD_FEATURES.map((feature) => (
-                <div
-                  key={feature.title}
-                  className="rounded-xl border border-border/50 bg-background/40 p-2.5"
-                >
-                  <div className="flex items-start gap-2">
-                    <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-secondary text-foreground">
-                      <feature.icon className="size-3" />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-[11px] font-semibold text-foreground">
-                        {feature.title}
-                      </p>
-                      <p className="text-[10px] leading-relaxed text-muted-foreground">
-                        {feature.body}
-                      </p>
+              {/* Three key value props — right column */}
+              <div className="grid gap-2.5">
+                {DASHBOARD_FEATURES.map((feature) => (
+                  <div
+                    key={feature.title}
+                    className="rounded-xl border border-border/50 bg-background/40 p-2.5"
+                  >
+                    <div className="flex items-start gap-2">
+                      <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-secondary text-foreground">
+                        <feature.icon className="size-3" />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-[11px] font-semibold text-foreground">
+                          {feature.title}
+                        </p>
+                        <p className="text-[10px] leading-relaxed text-muted-foreground">
+                          {feature.body}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </header>
-      )}
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] lg:items-start lg:gap-8">
         {/* Left panel: the input */}
