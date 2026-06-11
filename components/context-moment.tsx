@@ -35,7 +35,7 @@ export function ContextMoment({
         </p>
         <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
           {flight?.terminal
-            ? `Head to ${flight.terminal}${flight.gate ? `, gate ${flight.gate}` : ""}. `
+            ? `Head to Terminal ${flight.terminal}${flight.gate ? `, gate ${flight.gate}` : ""}. `
             : ""}
           Afternoon traffic tends to build up — departing now keeps your
           check-in stress-free.
