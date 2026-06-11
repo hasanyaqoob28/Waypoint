@@ -46,18 +46,23 @@ export function IngestPanel({ onIngested }: { onIngested: (trip: Trip) => void }
           <Sparkles className="size-4" />
         </span>
         <h2 className="text-sm font-semibold text-foreground">
-          Intelligent Ingestion
+          Add a trip
         </h2>
+        <span className="ml-auto rounded-full bg-secondary px-2 py-0.5 font-mono text-[10px] font-semibold text-muted-foreground">
+          STEP 1
+        </span>
       </div>
       <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">
-        Paste any messy flight or hotel confirmation. Gemini extracts a clean,
-        chronological itinerary and saves it to your trips.
+        Copy a flight or hotel confirmation email and paste it below — no
+        formatting needed. New here? Tap{" "}
+        <span className="font-medium text-foreground">Use sample</span> to see it
+        work instantly.
       </p>
 
       <Textarea
         value={rawText}
         onChange={(e) => setRawText(e.target.value)}
-        placeholder="Paste your confirmation email or booking text here…"
+        placeholder="e.g. 'Your flight UA88 from SFO departs at 10:40 AM, Gate G10…'"
         className="mt-4 min-h-32 resize-none bg-background/50 text-[13px] leading-relaxed"
         disabled={loading}
       />
@@ -65,13 +70,13 @@ export function IngestPanel({ onIngested }: { onIngested: (trip: Trip) => void }
       <div className="mt-3 flex items-center gap-2">
         <Button
           onClick={handleParse}
-          disabled={loading}
+          disabled={loading || !rawText.trim()}
           className="flex-1"
         >
           {loading ? (
             <>
               <Loader2 className="size-4 animate-spin" />
-              Parsing…
+              Building itinerary…
             </>
           ) : (
             <>

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 import useSWR, { mutate } from "swr"
-import { Navigation, Trash2, Plane, Sparkles, ScanText, Clock, Luggage } from "lucide-react"
+import { Navigation, Trash2, Plane, Sparkles, ScanText, Clock, Luggage, ChevronRight } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
@@ -87,7 +87,7 @@ export function Dashboard() {
                   Waypoint
                 </h1>
                 <p className="text-[12px] text-muted-foreground lg:text-sm">
-                  Your context-aware travel day copilot
+                  Travel day copilot
                 </p>
               </div>
             </div>
@@ -96,11 +96,34 @@ export function Dashboard() {
               AI-powered
             </span>
           </div>
-          <p className="relative mt-4 max-w-xl text-[13px] leading-relaxed text-muted-foreground text-pretty lg:text-sm">
-            Paste any messy confirmation and Waypoint turns it into a clean,
-            time-aware itinerary — then surfaces the right guidance for each
-            moment of your journey.
+          <p className="relative mt-4 max-w-xl text-[15px] font-medium leading-relaxed text-foreground text-pretty lg:text-base">
+            Stop digging through emails on travel day. Paste your booking
+            confirmations and Waypoint becomes your single, on-time itinerary —
+            telling you when to leave, which gate, and what to do during the
+            gaps.
           </p>
+          <ol className="relative mt-4 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[11px] text-muted-foreground">
+            <li className="flex items-center gap-1.5">
+              <span className="flex size-4 items-center justify-center rounded-full bg-secondary font-mono text-[9px] font-semibold text-foreground">
+                1
+              </span>
+              Paste a confirmation
+            </li>
+            <ChevronRight className="size-3 text-muted-foreground/50" />
+            <li className="flex items-center gap-1.5">
+              <span className="flex size-4 items-center justify-center rounded-full bg-secondary font-mono text-[9px] font-semibold text-foreground">
+                2
+              </span>
+              Parse with AI
+            </li>
+            <ChevronRight className="size-3 text-muted-foreground/50" />
+            <li className="flex items-center gap-1.5">
+              <span className="flex size-4 items-center justify-center rounded-full bg-secondary font-mono text-[9px] font-semibold text-foreground">
+                3
+              </span>
+              Get guidance for every moment
+            </li>
+          </ol>
         </div>
       </header>
 
