@@ -2,6 +2,7 @@ import { generateText, Output } from "ai"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { itinerarySchema } from "@/lib/itinerary-schema"
 import { saveTrip } from "@/lib/db"
+import { fallbackParse } from "@/lib/fallback-parser"
 import type { ItineraryEvent, Trip } from "@/lib/types"
 
 export const maxDuration = 60
@@ -31,41 +32,49 @@ export async function POST(request: Request) {
       )
     }
 
-    if (!process.env.GEMINI_API_KEY) {
-      return Response.json(
-        { error: "Configuration missing: GEMINI_API_KEY is not set" },
-        { status: 500 },
-      )
+    let title: string
+    let destination: string
+    let itinerary: ItineraryEvent[]
+    let parsedBy: "gemini" | "fallback"
+
+    if (process.env.GEMINI_API_KEY) {
+      const google = createGoogleGenerativeAI({
+        apiKey: process.env.GEMINI_API_KEY,
+      })
+
+      const { experimental_output } = await generateText({
+        model: google("gemini-2.5-flash"),
+        system: SYSTEM_PROMPT,
+        prompt: `Parse this travel confirmation text:\n\n${rawText}`,
+        experimental_output: Output.object({ schema: itinerarySchema }),
+      })
+
+      const parsed = experimental_output
+      title = parsed.title || "Untitled Trip"
+      destination = parsed.destination || ""
+      itinerary = parsed.events.map((e) => ({
+        type: e.type,
+        summary: e.summary,
+        startTime: e.startTime,
+        flight: e.type === "flight" ? e.flight : null,
+        hotel: e.type === "hotel" ? e.hotel : null,
+        transit: e.type === "transit" ? e.transit : null,
+        activity: e.type === "activity" ? e.activity : null,
+      }))
+      parsedBy = "gemini"
+    } else {
+      const parsed = fallbackParse(rawText)
+      title = parsed.title
+      destination = parsed.destination
+      itinerary = parsed.events
+      parsedBy = "fallback"
     }
-
-    const google = createGoogleGenerativeAI({
-      apiKey: process.env.GEMINI_API_KEY,
-    })
-
-    const { experimental_output } = await generateText({
-      model: google("gemini-2.5-flash"),
-      system: SYSTEM_PROMPT,
-      prompt: `Parse this travel confirmation text:\n\n${rawText}`,
-      experimental_output: Output.object({ schema: itinerarySchema }),
-    })
-
-    const parsed = experimental_output
-
-    const itinerary: ItineraryEvent[] = parsed.events.map((e) => ({
-      type: e.type,
-      summary: e.summary,
-      startTime: e.startTime,
-      flight: e.type === "flight" ? e.flight : null,
-      hotel: e.type === "hotel" ? e.hotel : null,
-      transit: e.type === "transit" ? e.transit : null,
-      activity: e.type === "activity" ? e.activity : null,
-    }))
 
     const trip: Trip = {
       userId,
       tripId: `trip_${Date.now()}`,
-      title: parsed.title || "Untitled Trip",
-      destination: parsed.destination || "",
+      title,
+      destination,
       status: "Active",
       syncedAt: new Date().toISOString(),
       itinerary,
@@ -73,7 +82,7 @@ export async function POST(request: Request) {
 
     await saveTrip(trip)
 
-    return Response.json({ success: true, trip })
+    return Response.json({ success: true, trip, parsedBy })
   } catch (error) {
     console.error("[v0] Ingest pipeline failure:", error)
     const message = error instanceof Error ? error.message : "Unknown error"

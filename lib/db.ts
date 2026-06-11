@@ -88,7 +88,7 @@ export async function ensureTable(): Promise<void> {
   return tableReady
 }
 
-export async function saveTrip(trip: Trip): Promise<void> {
+async function ddbSaveTrip(trip: Trip): Promise<void> {
   await ensureTable()
   await docClient.send(
     new PutCommand({
@@ -98,7 +98,7 @@ export async function saveTrip(trip: Trip): Promise<void> {
   )
 }
 
-export async function getTrips(userId: string): Promise<Trip[]> {
+async function ddbGetTrips(userId: string): Promise<Trip[]> {
   await ensureTable()
   const result = await docClient.send(
     new QueryCommand({
@@ -111,7 +111,7 @@ export async function getTrips(userId: string): Promise<Trip[]> {
   return trips.sort((a, b) => (b.syncedAt > a.syncedAt ? 1 : -1))
 }
 
-export async function getTrip(
+async function ddbGetTrip(
   userId: string,
   tripId: string,
 ): Promise<Trip | null> {
@@ -125,10 +125,7 @@ export async function getTrip(
   return (result.Item as Trip) || null
 }
 
-export async function deleteTrip(
-  userId: string,
-  tripId: string,
-): Promise<void> {
+async function ddbDeleteTrip(userId: string, tripId: string): Promise<void> {
   await ensureTable()
   await docClient.send(
     new DeleteCommand({
@@ -136,4 +133,28 @@ export async function deleteTrip(
       Key: { userId, tripId },
     }),
   )
+}
+
+// ---- Public dispatchers: DynamoDB when credentialed, on-disk JSON otherwise.
+
+export async function saveTrip(trip: Trip): Promise<void> {
+  return hasDynamoCreds ? ddbSaveTrip(trip) : localSaveTrip(trip)
+}
+
+export async function getTrips(userId: string): Promise<Trip[]> {
+  return hasDynamoCreds ? ddbGetTrips(userId) : localGetTrips(userId)
+}
+
+export async function getTrip(
+  userId: string,
+  tripId: string,
+): Promise<Trip | null> {
+  return hasDynamoCreds ? ddbGetTrip(userId, tripId) : localGetTrip(userId, tripId)
+}
+
+export async function deleteTrip(
+  userId: string,
+  tripId: string,
+): Promise<void> {
+  return hasDynamoCreds ? ddbDeleteTrip(userId, tripId) : localDeleteTrip(userId, tripId)
 }
