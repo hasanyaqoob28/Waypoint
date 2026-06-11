@@ -154,6 +154,30 @@ function pickNameLine(seg: string, skip: RegExp): string {
   return cleanName(lines[0] || "")
 }
 
+/**
+ * Pick the line that looks most like a street address from a multi-line block.
+ * Heuristics: starts with a number, or contains street/city keywords.
+ */
+function pickAddressLine(seg: string, name: string): string {
+  const lines = seg
+    .split(/\n+/)
+    .map((l) => l.trim())
+    .filter(Boolean)
+  const cityWords =
+    /\b(st|street|ave|avenue|rd|road|blvd|boulevard|lane|ln|dr|drive|city|chome|ku|cho|district|suite|floor|fl|building)\b/i
+  for (const line of lines) {
+    if (line === name) continue
+    if (/^(confirmation|conf|booking|status|standard|check|hotel|voucher|reservation)\b/i.test(line))
+      continue
+    if (TIME_RE.test(line)) continue
+    // A good address either starts with a number or has a street/area keyword.
+    if (/^\d+\s+\S/.test(line) || cityWords.test(line)) {
+      return line.replace(/\s+/g, " ").trim()
+    }
+  }
+  return ""
+}
+
 function cleanName(raw: string): string {
   // Strip leading labels and trailing time/punctuation noise.
   let s = raw
@@ -224,6 +248,7 @@ export function fallbackParse(rawText: string): FallbackResult {
       const name =
         pickNameLine(seg, /(hotel\s+voucher|voucher|hotel$|^hotel\b)/i) ||
         "Hotel Stay"
+      const address = pickAddressLine(seg, name)
       events.push({
         type: "hotel",
         summary: name,
@@ -231,7 +256,7 @@ export function fallbackParse(rawText: string): FallbackResult {
         flight: null,
         hotel: {
           name,
-          addressLocal: "",
+          addressLocal: address,
           addressLocalScript: "",
           confirmationNumber: conf ? conf[1] : "",
           checkInTime: startTime,

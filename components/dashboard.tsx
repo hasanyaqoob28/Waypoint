@@ -98,6 +98,12 @@ export function Dashboard() {
               Live sync
             </span>
           </div>
+          <p className="relative mt-4 max-w-2xl text-[13px] leading-relaxed text-muted-foreground text-pretty lg:text-sm">
+            Stop digging through emails on travel day. Paste your booking
+            confirmations and Waypoint becomes your single source of truth —
+            telling you when to leave, which gate, what your baggage carousel is,
+            and what to do during the gaps.
+          </p>
         </div>
       </header>
 

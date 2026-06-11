@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Plane, Clock, MapPin, Wifi } from "lucide-react"
+import { Plane, Clock, MapPin, Wifi, ScanText, Sparkles, Luggage } from "lucide-react"
 
 /**
  * A self-contained, animated "Live Activity" style preview shown before the
@@ -133,9 +133,56 @@ export function LivePreview() {
         <span className="font-semibold text-foreground">Use sample</span> to turn
         your own messy emails into a card like this.
       </p>
+
+      {/* How it works — three quick steps */}
+      <div className="relative mt-6 grid gap-2.5 border-t border-border pt-5 sm:grid-cols-3">
+        {STEPS.map((step, i) => (
+          <div
+            key={step.title}
+            className="rounded-2xl border border-border bg-card/60 p-3"
+          >
+            <div className="flex items-center gap-2">
+              <span className="flex size-7 items-center justify-center rounded-lg bg-secondary text-foreground">
+                <step.icon className="size-3.5" />
+              </span>
+              <span className="font-mono text-[10px] font-semibold text-muted-foreground">
+                0{i + 1}
+              </span>
+            </div>
+            <p className="mt-2 text-[12px] font-semibold text-foreground">
+              {step.title}
+            </p>
+            <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
+              {step.body}
+            </p>
+          </div>
+        ))}
+      </div>
+      <p className="relative mt-3 flex items-center justify-center gap-1.5 text-center text-[11px] text-muted-foreground">
+        <Luggage className="size-3.5 text-accent" />
+        Works offline with a built-in parser, upgrades to AI when connected.
+      </p>
     </div>
   )
 }
+
+const STEPS = [
+  {
+    icon: ScanText,
+    title: "Paste anything",
+    body: "Drop in a flight or hotel email — even messy, copied text works.",
+  },
+  {
+    icon: Sparkles,
+    title: "AI structures it",
+    body: "Flights, stays, transit and reservations are extracted in order.",
+  },
+  {
+    icon: Clock,
+    title: "Get the right nudge",
+    body: "See Pre-Flight, Landed and Gap-time guidance for every moment.",
+  },
+]
 
 function FlightArc() {
   return (
