@@ -164,7 +164,7 @@ export function LivePreview() {
       </p>
 
       {/* Why it works — three key value props */}
-      <div className="relative mt-6 grid gap-2.5 border-t border-border pt-5 sm:grid-cols-3">
+      <div className="relative mt-6 grid gap-2.5 border-t border-border pt-5">
         {FEATURES.map((feature) => (
           <div
             key={feature.title}
