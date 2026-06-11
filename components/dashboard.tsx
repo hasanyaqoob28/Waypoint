@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { IngestPanel } from "@/components/ingest-panel"
 import { EventCard } from "@/components/event-card"
 import { LivePreview } from "@/components/live-preview"
+import { AiOutputStream } from "@/components/ai-output-stream"
 import { ContextMoment, type ContextState } from "@/components/context-moment"
 import { DEMO_USER_ID } from "@/lib/constants"
 import { cn } from "@/lib/utils"
@@ -71,7 +72,7 @@ export function Dashboard() {
   }
 
   return (
-    <div className="mx-auto min-h-screen w-full max-w-6xl px-4 pb-16 pt-6 lg:px-8">
+    <div className="mx-auto min-h-screen w-full max-w-6xl px-4 pb-16 pt-6 lg:px-8 xl:max-w-[1600px]">
       <header className="mb-6">
         <div className="glass-panel relative overflow-hidden rounded-3xl border border-border p-5 shadow-lg lg:p-6">
           <div
@@ -101,7 +102,7 @@ export function Dashboard() {
         </div>
       </header>
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] lg:items-start lg:gap-8">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] lg:items-start lg:gap-6 xl:grid-cols-[minmax(0,320px)_minmax(0,1fr)_minmax(0,360px)]">
         {/* Left column: ingestion + trip list */}
         <div className="space-y-5 lg:sticky lg:top-6">
           <IngestPanel onIngested={handleIngested} />
@@ -121,7 +122,7 @@ export function Dashboard() {
           ) : null}
         </div>
 
-        {/* Right column: active trip detail */}
+        {/* Center column: active trip detail */}
         <div className="min-w-0">
           {isLoading ? (
             <div className="space-y-3">
@@ -138,6 +139,11 @@ export function Dashboard() {
           ) : (
             <LivePreview />
           )}
+        </div>
+
+        {/* Right column (desktop only): live AI output stream */}
+        <div className="hidden min-w-0 xl:block xl:sticky xl:top-6 xl:h-[calc(100vh-7rem)]">
+          <AiOutputStream trip={activeTrip} />
         </div>
       </div>
     </div>
