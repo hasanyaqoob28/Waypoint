@@ -2,6 +2,7 @@
 
 import { Plane, Luggage, Hourglass, MapPin } from "lucide-react"
 import type { Trip } from "@/lib/types"
+import { WeatherWidget } from "@/components/weather-widget"
 
 export type ContextState = "PRE_FLIGHT" | "LANDED" | "GAP_TIME"
 
@@ -24,6 +25,8 @@ export function ContextMoment({
   const flight = trip.itinerary.find((e) => e.type === "flight")?.flight ?? null
   const hotel = trip.itinerary.find((e) => e.type === "hotel")?.hotel ?? null
   const Icon = CONTEXT_META[context].icon
+  // Destination to check weather for: arrival city, else the trip destination.
+  const weatherPlace = flight?.arrivalCity || trip.destination || ""
 
   if (context === "PRE_FLIGHT") {
     return (
@@ -40,6 +43,11 @@ export function ContextMoment({
           Afternoon traffic tends to build up — departing now keeps your
           check-in stress-free.
         </p>
+        {weatherPlace ? (
+          <div className="mt-3">
+            <WeatherWidget place={weatherPlace} />
+          </div>
+        ) : null}
       </Banner>
     )
   }
@@ -60,6 +68,11 @@ export function ContextMoment({
               : "Awaiting"}
           </span>
         </div>
+        {weatherPlace ? (
+          <div className="mt-3">
+            <WeatherWidget place={weatherPlace} />
+          </div>
+        ) : null}
       </Banner>
     )
   }
@@ -76,6 +89,11 @@ export function ContextMoment({
         Drop your bags at a nearby locker and explore while you wait — no need to
         haul luggage around.
       </p>
+      {weatherPlace ? (
+        <div className="mt-3">
+          <WeatherWidget place={weatherPlace} />
+        </div>
+      ) : null}
     </Banner>
   )
 }
