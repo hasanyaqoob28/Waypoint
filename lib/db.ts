@@ -135,26 +135,60 @@ async function ddbDeleteTrip(userId: string, tripId: string): Promise<void> {
   )
 }
 
-// ---- Public dispatchers: DynamoDB when credentialed, on-disk JSON otherwise.
+// ---- Public dispatchers: DynamoDB when credentialed & reachable, on-disk
+// JSON otherwise. If DynamoDB is configured but errors at runtime (invalid
+// token, throttling, etc.) we fall back to local storage so the app keeps
+// working — useful for demos before valid AWS creds are wired up.
+
+function logDdbFallback(op: string, err: unknown) {
+  console.error(
+    `[v0] DynamoDB ${op} failed, using local store:`,
+    err instanceof Error ? err.message : err,
+  )
+}
 
 export async function saveTrip(trip: Trip): Promise<void> {
-  return hasDynamoCreds ? ddbSaveTrip(trip) : localSaveTrip(trip)
+  if (!hasDynamoCreds) return localSaveTrip(trip)
+  try {
+    return await ddbSaveTrip(trip)
+  } catch (err) {
+    logDdbFallback("saveTrip", err)
+    return localSaveTrip(trip)
+  }
 }
 
 export async function getTrips(userId: string): Promise<Trip[]> {
-  return hasDynamoCreds ? ddbGetTrips(userId) : localGetTrips(userId)
+  if (!hasDynamoCreds) return localGetTrips(userId)
+  try {
+    return await ddbGetTrips(userId)
+  } catch (err) {
+    logDdbFallback("getTrips", err)
+    return localGetTrips(userId)
+  }
 }
 
 export async function getTrip(
   userId: string,
   tripId: string,
 ): Promise<Trip | null> {
-  return hasDynamoCreds ? ddbGetTrip(userId, tripId) : localGetTrip(userId, tripId)
+  if (!hasDynamoCreds) return localGetTrip(userId, tripId)
+  try {
+    return await ddbGetTrip(userId, tripId)
+  } catch (err) {
+    logDdbFallback("getTrip", err)
+    return localGetTrip(userId, tripId)
+  }
 }
 
 export async function deleteTrip(
   userId: string,
   tripId: string,
 ): Promise<void> {
-  return hasDynamoCreds ? ddbDeleteTrip(userId, tripId) : localDeleteTrip(userId, tripId)
+  if (!hasDynamoCreds) return localDeleteTrip(userId, tripId)
+  try {
+    return await ddbDeleteTrip(userId, tripId)
+  } catch (err) {
+    logDdbFallback("deleteTrip", err)
+    return localDeleteTrip(userId, tripId)
+  }
 }

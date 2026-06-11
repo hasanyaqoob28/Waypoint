@@ -59,14 +59,18 @@ export function fallbackParse(rawText: string): FallbackResult {
         startTime,
         flight: {
           flightNumber: flightCode ? flightCode[1].replace(/\s+/, "") : "",
+          airline:
+            (seg.match(/([A-Z][a-zA-Z]+(?:\s[A-Z][a-zA-Z]+)?)\s+(?:Airlines|Airways)/) || [])[0] || "",
           departureAirport: airports[0] || "",
+          departureCity: "",
           arrivalAirport: airports[1] || "",
-          departureTime: startTime,
-          arrivalTime: "",
+          arrivalCity: "",
+          departureTimeLocal: startTime,
+          arrivalTimeLocal: "",
           gate: gate ? gate[1] : "",
           terminal: terminal ? terminal[1] : "",
+          baggageCarousel: "Pending",
           status: lower.includes("delay") ? "Delayed" : "On Time",
-          baggageClaim: "Pending",
         },
         hotel: null,
         transit: null,
@@ -93,11 +97,10 @@ export function fallbackParse(rawText: string): FallbackResult {
         flight: null,
         hotel: {
           name: name || "Hotel",
-          address: "",
+          addressLocal: "",
           addressLocalScript: "",
           confirmationNumber: conf ? conf[1] : "",
           checkInTime: startTime,
-          checkOutTime: "",
         },
         transit: null,
         activity: null,
@@ -130,7 +133,7 @@ export function fallbackParse(rawText: string): FallbackResult {
                 : "Car",
           from: "",
           to: "",
-          departureTime: startTime,
+          note: startTime ? `Departs ${startTime}` : "",
         },
         activity: null,
       })
@@ -157,6 +160,7 @@ export function fallbackParse(rawText: string): FallbackResult {
           name: titleCase(seg.slice(0, 50)) || "Reservation",
           location: "",
           time: startTime,
+          note: "",
         },
       })
     }
