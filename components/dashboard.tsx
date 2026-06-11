@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 import useSWR, { mutate } from "swr"
-import { Navigation, Trash2, Plane, Sparkles, ScanText, Clock, Luggage, ChevronRight } from "lucide-react"
+import { Navigation, Trash2, Plane, Sparkles, ScanText, Clock, Luggage } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
@@ -72,58 +72,63 @@ export function Dashboard() {
   return (
     <div className="mx-auto min-h-screen w-full max-w-6xl px-4 pb-16 pt-6 lg:px-8">
       <header className="mb-8">
-        <div className="glass-panel relative overflow-hidden rounded-3xl border border-border p-5 shadow-lg lg:p-7">
+        <div className="glass-panel relative overflow-hidden rounded-3xl border border-border p-6 shadow-lg lg:p-8">
           <div
             aria-hidden
-            className="pointer-events-none absolute -right-10 -top-16 size-48 rounded-full bg-primary/20 blur-3xl"
+            className="pointer-events-none absolute -right-16 -top-20 size-64 rounded-full bg-primary/20 blur-3xl"
           />
-          <div className="relative flex items-start justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <span className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/30">
-                <Navigation className="size-5" />
-              </span>
-              <div>
-                <h1 className="text-xl font-bold tracking-tight text-foreground lg:text-2xl">
-                  Waypoint
-                </h1>
-                <p className="text-[12px] text-muted-foreground lg:text-sm">
-                  Travel day copilot
-                </p>
+          <div className="relative grid gap-7 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-10">
+            {/* Brand + value proposition */}
+            <div>
+              <div className="flex items-center gap-3">
+                <span className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/30">
+                  <Navigation className="size-5" />
+                </span>
+                <div>
+                  <h1 className="text-xl font-bold tracking-tight text-foreground lg:text-2xl">
+                    Waypoint
+                  </h1>
+                  <p className="text-[12px] text-muted-foreground lg:text-sm">
+                    Travel day copilot
+                  </p>
+                </div>
+                <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-medium text-accent">
+                  <Sparkles className="size-3.5" />
+                  AI-powered
+                </span>
               </div>
+              <p className="mt-5 text-pretty text-lg font-semibold leading-snug text-foreground lg:text-xl">
+                Your whole trip, in one calm timeline.
+              </p>
+              <p className="mt-2 max-w-md text-[13px] leading-relaxed text-muted-foreground text-pretty lg:text-sm">
+                Stop digging through emails on travel day. Paste your booking
+                confirmations and Waypoint tells you when to leave, which gate,
+                and what to do during the gaps.
+              </p>
             </div>
-            <span className="hidden items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-medium text-accent sm:inline-flex">
-              <Sparkles className="size-3.5" />
-              AI-powered
-            </span>
+
+            {/* Persistent feature highlights — always visible, even after parsing */}
+            <ul className="grid gap-2.5">
+              {WAYPOINT_FEATURES.map((f) => (
+                <li
+                  key={f.title}
+                  className="flex items-center gap-3 rounded-2xl border border-border bg-card/60 p-3"
+                >
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-secondary text-foreground">
+                    <f.icon className="size-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[13px] font-semibold text-foreground">
+                      {f.title}
+                    </p>
+                    <p className="text-[11px] leading-relaxed text-muted-foreground">
+                      {f.body}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
-          <p className="relative mt-4 max-w-xl text-[15px] font-medium leading-relaxed text-foreground text-pretty lg:text-base">
-            Stop digging through emails on travel day. Paste your booking
-            confirmations and Waypoint becomes your single, on-time itinerary —
-            telling you when to leave, which gate, and what to do during the
-            gaps.
-          </p>
-          <ol className="relative mt-4 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[11px] text-muted-foreground">
-            <li className="flex items-center gap-1.5">
-              <span className="flex size-4 items-center justify-center rounded-full bg-secondary font-mono text-[9px] font-semibold text-foreground">
-                1
-              </span>
-              Paste a confirmation
-            </li>
-            <ChevronRight className="size-3 text-muted-foreground/50" />
-            <li className="flex items-center gap-1.5">
-              <span className="flex size-4 items-center justify-center rounded-full bg-secondary font-mono text-[9px] font-semibold text-foreground">
-                2
-              </span>
-              Parse with AI
-            </li>
-            <ChevronRight className="size-3 text-muted-foreground/50" />
-            <li className="flex items-center gap-1.5">
-              <span className="flex size-4 items-center justify-center rounded-full bg-secondary font-mono text-[9px] font-semibold text-foreground">
-                3
-              </span>
-              Get guidance for every moment
-            </li>
-          </ol>
         </div>
       </header>
 
@@ -131,8 +136,6 @@ export function Dashboard() {
         {/* Left column: ingestion + trip list */}
         <div className="space-y-5 lg:sticky lg:top-6">
           <IngestPanel onIngested={handleIngested} />
-
-          <WaypointSummary />
 
           {isLoading ? (
             <Skeleton className="h-32 w-full rounded-2xl" />
@@ -291,61 +294,23 @@ function TripList({
   )
 }
 
-function WaypointSummary() {
-  const features = [
-    {
-      icon: ScanText,
-      title: "One inbox, one itinerary",
-      body: "Paste scattered flight, hotel, and reservation emails into a single ordered timeline.",
-    },
-    {
-      icon: Clock,
-      title: "Knows the moment",
-      body: "Pre-Flight, Landed, and Gap-time views surface only what matters right now.",
-    },
-    {
-      icon: Luggage,
-      title: "Travel-day ready",
-      body: "Departure buffers, gates, baggage, and downtime suggestions at a glance.",
-    },
-  ]
-
-  return (
-    <section className="rounded-3xl border border-border bg-card/70 p-5">
-      <div className="flex items-center gap-2">
-        <span className="flex size-7 items-center justify-center rounded-lg bg-primary/15 text-primary">
-          <Navigation className="size-4" />
-        </span>
-        <h2 className="text-sm font-semibold text-foreground">
-          What is Waypoint?
-        </h2>
-      </div>
-      <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">
-        Waypoint is your travel-day copilot. It turns messy booking
-        confirmations into a clean, time-aware itinerary and guides you through
-        every step — so you always know what is next.
-      </p>
-
-      <ul className="mt-4 space-y-3">
-        {features.map((f) => (
-          <li key={f.title} className="flex gap-3">
-            <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-secondary text-foreground">
-              <f.icon className="size-3.5" />
-            </span>
-            <div className="min-w-0">
-              <p className="text-[13px] font-medium text-foreground">
-                {f.title}
-              </p>
-              <p className="text-[11px] leading-relaxed text-muted-foreground">
-                {f.body}
-              </p>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </section>
-  )
-}
+const WAYPOINT_FEATURES = [
+  {
+    icon: ScanText,
+    title: "One inbox, one itinerary",
+    body: "Scattered flight, hotel and reservation emails become a single ordered timeline.",
+  },
+  {
+    icon: Clock,
+    title: "Knows the moment",
+    body: "Pre-Flight, Landed and Gap-time views surface only what matters right now.",
+  },
+  {
+    icon: Luggage,
+    title: "Travel-day ready",
+    body: "Departure buffers, gates, baggage and downtime ideas at a glance.",
+  },
+]
 
 function EmptyState() {
   const steps = [
