@@ -132,6 +132,8 @@ export function Dashboard() {
         <div className="space-y-5 lg:sticky lg:top-6">
           <IngestPanel onIngested={handleIngested} />
 
+          <WaypointSummary />
+
           {isLoading ? (
             <Skeleton className="h-32 w-full rounded-2xl" />
           ) : trips.length > 0 ? (
@@ -285,6 +287,62 @@ function TripList({
           </div>
         )
       })}
+    </section>
+  )
+}
+
+function WaypointSummary() {
+  const features = [
+    {
+      icon: ScanText,
+      title: "One inbox, one itinerary",
+      body: "Paste scattered flight, hotel, and reservation emails into a single ordered timeline.",
+    },
+    {
+      icon: Clock,
+      title: "Knows the moment",
+      body: "Pre-Flight, Landed, and Gap-time views surface only what matters right now.",
+    },
+    {
+      icon: Luggage,
+      title: "Travel-day ready",
+      body: "Departure buffers, gates, baggage, and downtime suggestions at a glance.",
+    },
+  ]
+
+  return (
+    <section className="rounded-3xl border border-border bg-card/70 p-5">
+      <div className="flex items-center gap-2">
+        <span className="flex size-7 items-center justify-center rounded-lg bg-primary/15 text-primary">
+          <Navigation className="size-4" />
+        </span>
+        <h2 className="text-sm font-semibold text-foreground">
+          What is Waypoint?
+        </h2>
+      </div>
+      <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">
+        Waypoint is your travel-day copilot. It turns messy booking
+        confirmations into a clean, time-aware itinerary and guides you through
+        every step — so you always know what is next.
+      </p>
+
+      <ul className="mt-4 space-y-3">
+        {features.map((f) => (
+          <li key={f.title} className="flex gap-3">
+            <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-secondary text-foreground">
+              <f.icon className="size-3.5" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-[13px] font-medium text-foreground">
+                {f.title}
+              </p>
+              <p className="text-[11px] leading-relaxed text-muted-foreground">
+                {f.body}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }
