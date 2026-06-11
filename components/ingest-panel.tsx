@@ -40,14 +40,16 @@ export function IngestPanel({ onIngested }: { onIngested: (trip: Trip) => void }
   }
 
   return (
-    <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+    <section className="glass-panel rounded-3xl border border-border p-5 shadow-lg">
       <div className="flex items-center gap-2">
-        <Sparkles className="size-4 text-accent" />
+        <span className="flex size-7 items-center justify-center rounded-lg bg-accent/15 text-accent">
+          <Sparkles className="size-4" />
+        </span>
         <h2 className="text-sm font-semibold text-foreground">
           Intelligent Ingestion
         </h2>
       </div>
-      <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+      <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">
         Paste any messy flight or hotel confirmation. Gemini extracts a clean,
         chronological itinerary and saves it to your trips.
       </p>
@@ -56,7 +58,7 @@ export function IngestPanel({ onIngested }: { onIngested: (trip: Trip) => void }
         value={rawText}
         onChange={(e) => setRawText(e.target.value)}
         placeholder="Paste your confirmation email or booking text here…"
-        className="mt-3 min-h-28 resize-none bg-background/60 text-[13px] leading-relaxed"
+        className="mt-4 min-h-32 resize-none bg-background/50 text-[13px] leading-relaxed"
         disabled={loading}
       />
 

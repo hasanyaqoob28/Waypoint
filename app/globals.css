@@ -143,3 +143,50 @@
 .animate-slide-up {
   animation: waypoint-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+/* Layered app backdrop: deep slate base + soft blue glow + subtle grid.
+   Gives the page depth so it never reads as a flat, hollow surface. */
+.app-backdrop {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(
+      120% 80% at 80% -10%,
+      oklch(0.62 0.18 256 / 0.18) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      90% 70% at -10% 0%,
+      oklch(0.45 0.12 264 / 0.16) 0%,
+      transparent 50%
+    ),
+    linear-gradient(
+      to bottom,
+      oklch(0.2 0.025 264) 0%,
+      var(--background) 40%
+    );
+  background-attachment: fixed;
+}
+
+.app-grid {
+  background-image:
+    linear-gradient(to right, oklch(1 0 0 / 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, oklch(1 0 0 / 0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(
+    100% 60% at 50% 0%,
+    black 0%,
+    transparent 75%
+  );
+  mask-image: radial-gradient(100% 60% at 50% 0%, black 0%, transparent 75%);
+}
+
+/* Soft elevated glass surface used for hero + primary panels */
+.glass-panel {
+  background:
+    linear-gradient(
+      to bottom,
+      oklch(0.24 0.025 264 / 0.9),
+      oklch(0.2 0.022 264 / 0.85)
+    );
+  backdrop-filter: blur(8px);
+}
