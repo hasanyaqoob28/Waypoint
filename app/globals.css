@@ -190,3 +190,50 @@
     );
   backdrop-filter: blur(8px);
 }
+
+/* Live preview: dashed arc draws in, plane travels along the curved path */
+@keyframes wp-arc-dash {
+  from {
+    stroke-dashoffset: 320;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.wp-arc-draw {
+  animation: wp-arc-dash 2.2s ease-out forwards;
+}
+
+@keyframes wp-arc-fly {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+.wp-arc-plane {
+  offset-path: path("M14 46 Q 130 -8 246 46");
+  offset-rotate: auto;
+  animation: wp-arc-fly 3.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wp-arc-plane {
+    animation: none;
+    offset-distance: 55%;
+  }
+  .wp-arc-draw {
+    animation: none;
+  }
+}

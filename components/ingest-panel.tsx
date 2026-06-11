@@ -1,16 +1,36 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { Sparkles, Loader2, Wand2 } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { DEMO_USER_ID, SAMPLE_CONFIRMATION } from "@/lib/constants"
+import { cn } from "@/lib/utils"
 import type { Trip } from "@/lib/types"
 
 export function IngestPanel({ onIngested }: { onIngested: (trip: Trip) => void }) {
   const [rawText, setRawText] = useState("")
   const [loading, setLoading] = useState(false)
+  const [typing, setTyping] = useState(false)
+  const typingRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  function handleUseSample() {
+    if (loading || typing) return
+    if (typingRef.current) clearInterval(typingRef.current)
+    setTyping(true)
+    setRawText("")
+    let i = 0
+    // Auto-type the sample so the user watches it stream in (show, don't tell).
+    typingRef.current = setInterval(() => {
+      i += 3
+      setRawText(SAMPLE_CONFIRMATION.slice(0, i))
+      if (i >= SAMPLE_CONFIRMATION.length) {
+        if (typingRef.current) clearInterval(typingRef.current)
+        setTyping(false)
+      }
+    }, 16)
+  }
 
   async function handleParse() {
     if (!rawText.trim()) {
@@ -63,14 +83,17 @@ export function IngestPanel({ onIngested }: { onIngested: (trip: Trip) => void }
         value={rawText}
         onChange={(e) => setRawText(e.target.value)}
         placeholder="e.g. 'Your flight UA88 from SFO departs at 10:40 AM, Gate G10…'"
-        className="mt-4 min-h-32 resize-none bg-background/50 text-[13px] leading-relaxed"
-        disabled={loading}
+        className={cn(
+          "mt-4 min-h-32 resize-none bg-background/50 text-[13px] leading-relaxed",
+          typing && "ring-2 ring-accent/40",
+        )}
+        disabled={loading || typing}
       />
 
       <div className="mt-3 flex items-center gap-2">
         <Button
           onClick={handleParse}
-          disabled={loading || !rawText.trim()}
+          disabled={loading || typing || !rawText.trim()}
           className="flex-1"
         >
           {loading ? (
@@ -87,10 +110,10 @@ export function IngestPanel({ onIngested }: { onIngested: (trip: Trip) => void }
         </Button>
         <Button
           variant="secondary"
-          onClick={() => setRawText(SAMPLE_CONFIRMATION)}
-          disabled={loading}
+          onClick={handleUseSample}
+          disabled={loading || typing}
         >
-          Use sample
+          {typing ? "Typing…" : "Use sample"}
         </Button>
       </div>
     </section>
