@@ -72,8 +72,9 @@ export function Dashboard() {
 
   return (
     <div className="mx-auto min-h-screen w-full max-w-6xl px-4 pb-16 pt-6 lg:px-8">
-      <header className="mb-6">
-        <div className="glass-panel relative overflow-hidden rounded-3xl border border-border p-5 shadow-lg lg:p-6">
+      {!activeTrip && (
+        <header className="mb-6">
+          <div className="glass-panel relative overflow-hidden rounded-3xl border border-border p-5 shadow-lg lg:p-6">
           <div
             aria-hidden
             className="pointer-events-none absolute -right-16 -top-20 size-64 rounded-full bg-primary/20 blur-3xl"
@@ -134,6 +135,7 @@ export function Dashboard() {
           </div>
         </div>
       </header>
+      )}
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] lg:items-start lg:gap-8">
         {/* Left panel: the input */}
