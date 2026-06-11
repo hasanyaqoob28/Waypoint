@@ -12,8 +12,24 @@ import {
   DeleteCommand,
 } from "@aws-sdk/lib-dynamodb"
 import type { Trip } from "./types"
+import {
+  localSaveTrip,
+  localGetTrips,
+  localGetTrip,
+  localDeleteTrip,
+} from "./local-store"
 
 export const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || "WaypointTrips"
+
+// DynamoDB is used when AWS credentials are present in the environment.
+// Otherwise we fall back to an on-disk JSON store so the app stays usable.
+export const hasDynamoCreds = Boolean(
+  process.env.AWS_REGION &&
+    process.env.AWS_ACCESS_KEY_ID &&
+    process.env.AWS_SECRET_ACCESS_KEY,
+)
+
+export const storageBackend = hasDynamoCreds ? "dynamodb" : "local"
 
 const client = new DynamoDBClient({
   region: process.env.AWS_REGION,
