@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Plane, Clock, MapPin, Wifi, ScanText, Sparkles, Luggage, ListChecks } from "lucide-react"
+import { Plane, Clock, MapPin, Wifi, ScanText, Sparkles, Luggage } from "lucide-react"
 
 /**
  * A self-contained, animated "Live Activity" style preview shown before the
@@ -162,26 +162,6 @@ export function LivePreview() {
         <Luggage className="size-3.5 text-accent" />
         Works offline with a built-in parser, upgrades to AI when connected.
       </p>
-
-      {/* Why it works — three key value props */}
-      <div className="relative mt-6 grid gap-2.5 border-t border-border pt-5">
-        {FEATURES.map((feature) => (
-          <div
-            key={feature.title}
-            className="rounded-2xl border border-border bg-card/60 p-3"
-          >
-            <span className="flex size-7 items-center justify-center rounded-lg bg-secondary text-foreground">
-              <feature.icon className="size-3.5" />
-            </span>
-            <p className="mt-2 text-[12px] font-semibold text-foreground">
-              {feature.title}
-            </p>
-            <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-              {feature.body}
-            </p>
-          </div>
-        ))}
-      </div>
     </div>
   )
 }
@@ -201,24 +181,6 @@ const STEPS = [
     icon: Clock,
     title: "Get the right nudge",
     body: "See Pre-Flight, Landed and Gap-time guidance for every moment.",
-  },
-]
-
-const FEATURES = [
-  {
-    icon: ListChecks,
-    title: "One inbox, one itinerary",
-    body: "Scattered flight, hotel and reservation emails become a single ordered timeline.",
-  },
-  {
-    icon: Clock,
-    title: "Knows the moment",
-    body: "Pre-Flight, Landed and Gap-time views surface only what matters right now.",
-  },
-  {
-    icon: Luggage,
-    title: "Travel-day ready",
-    body: "Departure buffers, gates, baggage and downtime ideas at a glance.",
   },
 ]
 

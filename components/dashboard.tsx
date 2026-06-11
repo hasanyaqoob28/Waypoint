@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 import useSWR, { mutate } from "swr"
-import { Navigation, Trash2 } from "lucide-react"
+import { Navigation, Trash2, Clock, Luggage, ListChecks } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
@@ -106,6 +106,30 @@ export function Dashboard() {
           </p>
         </div>
       </header>
+
+      {/* Three key value props */}
+      <div className="mb-6 grid gap-2.5">
+        {DASHBOARD_FEATURES.map((feature) => (
+          <div
+            key={feature.title}
+            className="rounded-2xl border border-border bg-card/70 p-4"
+          >
+            <div className="flex items-start gap-3">
+              <span className="flex size-8 items-center justify-center rounded-lg bg-secondary text-foreground">
+                <feature.icon className="size-4" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground">
+                  {feature.title}
+                </p>
+                <p className="text-[12px] leading-relaxed text-muted-foreground">
+                  {feature.body}
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] lg:items-start lg:gap-8">
         {/* Left panel: the input */}
@@ -268,3 +292,21 @@ function TripList({
     </section>
   )
 }
+
+const DASHBOARD_FEATURES = [
+  {
+    icon: ListChecks,
+    title: "One inbox, one itinerary",
+    body: "Scattered flight, hotel and reservation emails become a single ordered timeline.",
+  },
+  {
+    icon: Clock,
+    title: "Knows the moment",
+    body: "Pre-Flight, Landed and Gap-time views surface only what matters right now.",
+  },
+  {
+    icon: Luggage,
+    title: "Travel-day ready",
+    body: "Departure buffers, gates, baggage and downtime ideas at a glance.",
+  },
+]
