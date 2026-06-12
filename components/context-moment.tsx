@@ -1,191 +1,99 @@
 "use client"
 
-import { Plane, Luggage, MapPin, Clock } from "lucide-react"
-import type { Trip, ItineraryEvent } from "@/lib/types"
+import { Plane, Luggage, Hourglass, MapPin } from "lucide-react"
+import type { Trip } from "@/lib/types"
 import { WeatherWidget } from "@/components/weather-widget"
+
+export type ContextState = "PRE_FLIGHT" | "LANDED" | "GAP_TIME"
+
+const CONTEXT_META: Record<
+  ContextState,
+  { label: string; icon: typeof Plane }
+> = {
+  PRE_FLIGHT: { label: "Pre-Flight", icon: Plane },
+  LANDED: { label: "Just Landed", icon: Luggage },
+  GAP_TIME: { label: "The Gap", icon: Hourglass },
+}
 
 export function ContextMoment({
   trip,
-  event,
+  context,
 }: {
   trip: Trip
-  event: ItineraryEvent
+  context: ContextState
 }) {
-  // Destination for weather: arrival city for flights, or trip destination
-  const weatherPlace =
-    (event.type === "flight" && event.flight?.arrivalCity) || trip.destination || ""
+  const flight = trip.itinerary.find((e) => e.type === "flight")?.flight ?? null
+  const hotel = trip.itinerary.find((e) => e.type === "hotel")?.hotel ?? null
+  const Icon = CONTEXT_META[context].icon
+  // Destination to check weather for: arrival city, else the trip destination.
+  const weatherPlace = flight?.arrivalCity || trip.destination || ""
 
-  if (event.type === "flight" && event.flight) {
+  if (context === "PRE_FLIGHT") {
     return (
-      <FlightGuidance flight={event.flight} weatherPlace={weatherPlace} />
-    )
-  }
-
-  if (event.type === "hotel" && event.hotel) {
-    return (
-      <HotelGuidance hotel={event.hotel} weatherPlace={weatherPlace} />
-    )
-  }
-
-  if (event.type === "activity" && event.activity) {
-    return <ActivityGuidance activity={event.activity} />
-  }
-
-  if (event.type === "transit" && event.transit) {
-    return <TransitGuidance transit={event.transit} />
-  }
-
-  return null
-}
-
-function FlightGuidance({
-  flight,
-  weatherPlace,
-}: {
-  flight: NonNullable<ItineraryEvent["flight"]>
-  weatherPlace: string
-}) {
-  const departureTime = flight.departureTimeLocal.split(" ")[0] // Just HH:MM
-  
-  return (
-    <Banner icon={Plane} kicker="Your flight" tone="primary">
-      <div className="space-y-3">
-        <p className="text-sm font-semibold text-primary-foreground text-pretty">
-          {flight.flightNumber} departs at {departureTime} from{" "}
-          {flight.departureCity}.
-        </p>
-        <div className="space-y-2 rounded-xl border border-primary-foreground/15 bg-background/20 p-3">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-primary-foreground/80">
-            Before boarding
-          </p>
-          <ul className="space-y-1.5 text-[12px] text-primary-foreground/90">
-            {flight.terminal && (
-              <li className="flex items-center gap-2">
-                <span className="size-1.5 rounded-full bg-primary-foreground/50" />
-                Head to Terminal {flight.terminal}
-                {flight.gate ? `, gate ${flight.gate}` : ""}
-              </li>
-            )}
-            {flight.status && (
-              <li className="flex items-center gap-2">
-                <span className="size-1.5 rounded-full bg-primary-foreground/50" />
-                Status: {flight.status}
-              </li>
-            )}
-            <li className="flex items-center gap-2">
-              <span className="size-1.5 rounded-full bg-primary-foreground/50" />
-              Allow 30 mins for check-in and security
-            </li>
-          </ul>
-        </div>
-        {weatherPlace && (
-          <div className="mt-3">
-            <WeatherWidget place={weatherPlace} />
-          </div>
-        )}
-      </div>
-    </Banner>
-  )
-}
-
-function HotelGuidance({
-  hotel,
-  weatherPlace,
-}: {
-  hotel: NonNullable<ItineraryEvent["hotel"]>
-  weatherPlace: string
-}) {
-  return (
-    <Banner icon={Luggage} kicker="Your stay" tone="accent">
-      <div className="space-y-3">
+      <Banner icon={Icon} kicker="Heading to the airport">
         <p className="text-sm font-semibold text-foreground text-pretty">
-          {hotel.name}
+          {flight
+            ? `Leave with a buffer for ${flight.flightNumber} from ${flight.departureAirport}.`
+            : "Leave with a comfortable buffer for your departure."}
         </p>
-        <div className="space-y-2 rounded-xl border border-accent/25 bg-accent/5 p-3">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-accent">
-            Check-in details
-          </p>
-          <div className="space-y-1.5 text-[12px]">
-            {hotel.checkInTime && (
-              <p className="flex items-center gap-2 text-foreground">
-                <Clock className="size-3.5 text-accent" />
-                Opens at {hotel.checkInTime}
-              </p>
-            )}
-            {hotel.addressLocal && (
-              <p className="flex items-start gap-2 text-muted-foreground">
-                <MapPin className="mt-0.5 size-3.5 shrink-0 text-accent" />
-                <span className="line-clamp-2">{hotel.addressLocal}</span>
-              </p>
-            )}
-            {hotel.confirmationNumber && (
-              <p className="flex items-center gap-2 text-muted-foreground">
-                <span className="font-mono text-[11px]">
-                  Conf: {hotel.confirmationNumber}
-                </span>
-              </p>
-            )}
-          </div>
-        </div>
-        {weatherPlace && (
+        <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+          {flight?.terminal
+            ? `Head to Terminal ${flight.terminal}${flight.gate ? `, gate ${flight.gate}` : ""}. `
+            : ""}
+          Afternoon traffic tends to build up — departing now keeps your
+          check-in stress-free.
+        </p>
+        {weatherPlace ? (
           <div className="mt-3">
             <WeatherWidget place={weatherPlace} />
           </div>
-        )}
-      </div>
-    </Banner>
-  )
-}
+        ) : null}
+      </Banner>
+    )
+  }
 
-function ActivityGuidance({
-  activity,
-}: {
-  activity: NonNullable<ItineraryEvent["activity"]>
-}) {
-  return (
-    <Banner icon={Plane} kicker="Upcoming reservation">
-      <div className="space-y-2">
-        <p className="text-sm font-semibold text-foreground">{activity.name}</p>
-        <div className="flex flex-col gap-1.5 text-[12px] text-muted-foreground">
-          {activity.time && (
-            <p className="flex items-center gap-2">
-              <Clock className="size-3.5" /> {activity.time}
-            </p>
-          )}
-          {activity.location && (
-            <p className="flex items-start gap-2">
-              <MapPin className="mt-0.5 size-3.5 shrink-0" />
-              {activity.location}
-            </p>
-          )}
-        </div>
-        {activity.note && (
-          <p className="text-[11px] leading-relaxed text-muted-foreground">
-            {activity.note}
-          </p>
-        )}
-      </div>
-    </Banner>
-  )
-}
-
-function TransitGuidance({
-  transit,
-}: {
-  transit: NonNullable<ItineraryEvent["transit"]>
-}) {
-  return (
-    <Banner icon={Plane} kicker="Transit" tone="default">
-      <div className="space-y-2">
-        <p className="text-sm font-semibold text-foreground">
-          {transit.mode || "Transit"}: {transit.from} → {transit.to}
+  if (context === "LANDED") {
+    return (
+      <Banner icon={Icon} kicker="Touchdown verified" tone="primary">
+        <p className="text-sm font-semibold text-primary-foreground text-pretty">
+          Welcome to {flight?.arrivalCity || trip.destination || "your destination"}.
         </p>
-        {transit.note && (
-          <p className="text-[12px] leading-relaxed text-muted-foreground">
-            {transit.note}
-          </p>
-        )}
-      </div>
+        <div className="mt-3 flex items-center justify-between gap-2 rounded-xl border border-primary-foreground/15 bg-background/20 px-3 py-2">
+          <span className="inline-flex items-center gap-1.5 text-[12px] text-primary-foreground/90">
+            <Luggage className="size-3.5" /> Baggage claim
+          </span>
+          <span className="rounded-md bg-background/30 px-2 py-0.5 font-mono text-sm font-bold text-primary-foreground">
+            {flight?.baggageCarousel && flight.baggageCarousel !== "Pending"
+              ? flight.baggageCarousel
+              : "Awaiting"}
+          </span>
+        </div>
+        {weatherPlace ? (
+          <div className="mt-3">
+            <WeatherWidget place={weatherPlace} />
+          </div>
+        ) : null}
+      </Banner>
+    )
+  }
+
+  return (
+    <Banner icon={Icon} kicker="Time to spare" tone="accent">
+      <p className="text-sm font-semibold text-foreground text-pretty">
+        {hotel?.checkInTime
+          ? `Check-in at ${hotel.name} opens at ${hotel.checkInTime}.`
+          : "You have a gap before your next event."}
+      </p>
+      <p className="mt-1 flex items-center gap-1.5 text-[12px] leading-relaxed text-muted-foreground">
+        <MapPin className="size-3.5" />
+        Drop your bags at a nearby locker and explore while you wait — no need to
+        haul luggage around.
+      </p>
+      {weatherPlace ? (
+        <div className="mt-3">
+          <WeatherWidget place={weatherPlace} />
+        </div>
+      ) : null}
     </Banner>
   )
 }
@@ -244,4 +152,3 @@ function Banner({
     </div>
   )
 }
-
