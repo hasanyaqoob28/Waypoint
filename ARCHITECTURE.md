@@ -9,16 +9,43 @@ Travelway is a full-stack travel assistant built with:
 - **Database:** AWS Aurora PostgreSQL (primary backend)
 - **Weather:** Open-Meteo API (real-time conditions)
 
-## System Diagram
+## Complete Application Flow
 
 ![Travelway Architecture](/architecture.png)
 
-**System Components:**
-- **Frontend (Vercel):** Travelway UI with booking input and live preview
-- **API Layer (Next.js):** Serverless routes for trips and parsing
-- **AI Processing:** Google Gemini for parsing messy booking text
-- **Database (Aurora PostgreSQL):** Primary backend storing users, trips, and events
-- **External Services:** Open-Meteo for weather, Vercel AI SDK for Gemini integration
+### Full Data Journey (Left to Right)
+
+1. **User Input (Vercel UI)**
+   - User pastes booking confirmation email text
+   - Input form captures raw booking data
+
+2. **API Layer (Next.js Serverless)**
+   - `POST /api/parse` receives raw booking text
+   - `GET /api/trips` retrieves stored trips from database
+
+3. **AI Processing (Google Gemini)**
+   - Raw booking text sent to Gemini API via Vercel AI SDK
+   - Parses messy email into structured data:
+     - Flight numbers, departure/arrival times
+     - Gate numbers and terminals
+     - Hotel names and check-in times
+     - Activity details and locations
+     - Transit information
+
+4. **Data Storage (Aurora PostgreSQL - Primary Backend)**
+   - Parsed events stored in database
+   - Relationships maintained (user → trip → events)
+   - Indexed for fast retrieval
+
+5. **Live Display (React UI)**
+   - Event timeline strip shows visual sequence
+   - Current event auto-detected based on system time
+   - Context-aware guidance displays booking-specific details
+   - Real-time information: gates, addresses, check-in times
+
+6. **External Services**
+   - Open-Meteo Weather API provides destination weather
+   - Weather data displayed in guidance panel
 
 ## Database Schema (Aurora PostgreSQL)
 
