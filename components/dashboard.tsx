@@ -78,7 +78,7 @@ export function Dashboard() {
             </span>
             <div className="min-w-0">
               <h1 className="text-xl font-bold tracking-tight text-foreground lg:text-2xl">
-                Travelway AI
+                Travelway
               </h1>
               <p className="text-[12px] text-muted-foreground lg:text-sm">
                 Your whole trip, in one calm timeline

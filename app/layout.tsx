@@ -11,9 +11,9 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Travelway AI — Your AI Travel Assistant',
+  title: 'Travelway — Your whole trip, in one calm timeline',
   description:
-    'Travelway AI parses messy travel confirmations with AI and guides you through your entire trip, from pre-flight to landing to the gaps in between.',
+    'Travelway parses messy travel confirmations with AI and guides you through your entire trip, from pre-flight to landing to the gaps in between.',
   generator: 'v0.app',
   icons: {
     icon: [
