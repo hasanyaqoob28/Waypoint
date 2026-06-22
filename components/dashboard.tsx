@@ -78,7 +78,7 @@ export function Dashboard() {
             </span>
             <div className="min-w-0">
               <h1 className="text-xl font-bold tracking-tight text-foreground lg:text-2xl">
-                Waypoint
+                Travelway AI
               </h1>
               <p className="text-[12px] text-muted-foreground lg:text-sm">
                 Your whole trip, in one calm timeline
@@ -98,7 +98,7 @@ export function Dashboard() {
             <div className="relative mt-6 grid gap-6 lg:grid-cols-[1fr_280px] lg:items-start">
               <p className="max-w-2xl text-[13px] leading-relaxed text-muted-foreground text-pretty lg:text-sm">
                 Stop digging through emails on travel day. Paste your booking
-                confirmations and Waypoint becomes your single source of truth —
+                confirmations and Travelway AI becomes your single source of truth —
                 telling you when to leave, which gate, what your baggage carousel is,
                 and what to do during the gaps.
               </p>
