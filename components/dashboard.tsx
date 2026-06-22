@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import useSWR, { mutate } from "swr"
 import { Navigation, Trash2, Clock, Luggage, ListChecks } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -9,25 +9,19 @@ import { Button } from "@/components/ui/button"
 import { IngestPanel } from "@/components/ingest-panel"
 import { EventCard } from "@/components/event-card"
 import { LivePreview } from "@/components/live-preview"
-import { ContextMoment, type ContextState } from "@/components/context-moment"
+import { EventTimeline, getCurrentEventIndex } from "@/components/event-timeline"
+import { ContextMoment } from "@/components/context-moment"
 import { DEMO_USER_ID } from "@/lib/constants"
 import { cn } from "@/lib/utils"
-import type { Trip } from "@/lib/types"
+import type { Trip, ItineraryEvent } from "@/lib/types"
 import { toast } from "sonner"
 
 const TRIPS_KEY = `/api/trips?userId=${DEMO_USER_ID}`
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
-const CONTEXTS: { value: ContextState; label: string }[] = [
-  { value: "PRE_FLIGHT", label: "Pre-Flight" },
-  { value: "LANDED", label: "Landed" },
-  { value: "GAP_TIME", label: "The Gap" },
-]
-
 export function Dashboard() {
   const { data, isLoading } = useSWR<{ trips: Trip[] }>(TRIPS_KEY, fetcher)
-  const [context, setContext] = useState<ContextState>("PRE_FLIGHT")
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
   const trips = useMemo(() => data?.trips ?? [], [data])
@@ -38,7 +32,6 @@ export function Dashboard() {
 
   async function handleIngested(trip: Trip) {
     setSelectedId(trip.tripId)
-    setContext("PRE_FLIGHT")
     await mutate(
       TRIPS_KEY,
       (current: { trips: Trip[] } | undefined) => ({
@@ -149,10 +142,7 @@ export function Dashboard() {
             <TripList
               trips={trips}
               activeId={activeTrip?.tripId ?? null}
-              onSelect={(t) => {
-                setSelectedId(t.tripId)
-                setContext("PRE_FLIGHT")
-              }}
+              onSelect={(t) => setSelectedId(t.tripId)}
               onDelete={handleDelete}
             />
           ) : null}
@@ -168,8 +158,6 @@ export function Dashboard() {
           ) : activeTrip ? (
             <ActiveTrip
               trip={activeTrip}
-              context={context}
-              onContextChange={setContext}
               onDelete={() => handleDelete(activeTrip)}
             />
           ) : (
@@ -183,15 +171,28 @@ export function Dashboard() {
 
 function ActiveTrip({
   trip,
-  context,
-  onContextChange,
   onDelete,
 }: {
   trip: Trip
-  context: ContextState
-  onContextChange: (c: ContextState) => void
   onDelete: () => void
 }) {
+  const [selectedEventIndex, setSelectedEventIndex] = useState(0)
+  const [autoIndex, setAutoIndex] = useState<number | null>(null)
+
+  // Auto-detect current event on mount and update every minute
+  useEffect(() => {
+    const updateAutoIndex = () => {
+      setAutoIndex(getCurrentEventIndex(trip))
+    }
+    updateAutoIndex()
+    const interval = setInterval(updateAutoIndex, 60000)
+    return () => clearInterval(interval)
+  }, [trip])
+
+  // Use auto-detected index if available, otherwise manual selection
+  const eventIndex = autoIndex !== null ? autoIndex : selectedEventIndex
+  const currentEvent = trip.itinerary[eventIndex]
+
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between gap-2">
@@ -214,21 +215,17 @@ function ActiveTrip({
         </Button>
       </div>
 
-      <Tabs
-        value={context}
-        onValueChange={(v) => onContextChange(v as ContextState)}
-      >
-        <TabsList className="grid w-full grid-cols-3 lg:max-w-md">
-          {CONTEXTS.map((c) => (
-            <TabsTrigger key={c.value} value={c.value} className="text-[12px]">
-              {c.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+      {/* Event timeline — shows all events with current highlighted */}
+      <EventTimeline
+        trip={trip}
+        activeEventIndex={eventIndex}
+        onSelectEvent={setSelectedEventIndex}
+      />
 
-      <ContextMoment trip={trip} context={context} />
+      {/* Event-specific guidance */}
+      {currentEvent && <ContextMoment trip={trip} event={currentEvent} />}
 
+      {/* Full itinerary */}
       <div className="space-y-3">
         <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
           Itinerary
