@@ -11,7 +11,14 @@ Travelway is a full-stack travel assistant built with:
 
 ## System Diagram
 
-See `.v0/travelway-architecture.png` for visual overview.
+![Travelway Architecture](/architecture.png)
+
+**System Components:**
+- **Frontend (Vercel):** Travelway UI with booking input and live preview
+- **API Layer (Next.js):** Serverless routes for trips and parsing
+- **AI Processing:** Google Gemini for parsing messy booking text
+- **Database (Aurora PostgreSQL):** Primary backend storing users, trips, and events
+- **External Services:** Open-Meteo for weather, Vercel AI SDK for Gemini integration
 
 ## Database Schema (Aurora PostgreSQL)
 
