@@ -1,10 +1,10 @@
-# Waypoint — Context-Aware Travel Day Copilot
+# Travelway — Your whole trip, in one calm timeline
 
-Waypoint parses messy travel confirmations with AI and guides you through your entire travel day, from pre-flight preparation to landing to the gaps in between.
+Travelway parses messy travel confirmations with AI and guides you through your entire travel day, from pre-flight preparation to landing to the gaps in between.
 
 ## Features
 
-- **AI-Powered Parsing**: Paste any booking confirmation (flights, hotels, activities) and Waypoint automatically extracts and structures the data
+- **AI-Powered Parsing**: Paste any booking confirmation (flights, hotels, activities) and Travelway automatically extracts and structures the data
 - **Real-Time Guidance**: Get context-aware nudges at every stage of your trip — when to leave, which gate, baggage carousel, hotel check-in details
 - **Live Timeline**: Visual event sequence showing all bookings with auto-detection of current event
 - **Event-Based Navigation**: Dynamic tabs for each booking with booking-specific information
@@ -18,6 +18,10 @@ Waypoint parses messy travel confirmations with AI and guides you through your e
 - **State Management**: SWR for client-side data fetching and caching
 - **UI Components**: shadcn/ui, Lucide icons
 - **Styling**: Design tokens with semantic color system
+
+## Live Demo
+
+Visit **[travelway-ai.vercel.app](https://travelway-ai.vercel.app)** to try Travelway now.
 
 ## Getting Started
 
