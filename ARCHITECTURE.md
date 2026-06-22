@@ -9,9 +9,17 @@ Travelway is a full-stack travel assistant built with:
 - **Database:** AWS Aurora PostgreSQL (primary backend)
 - **Weather:** Open-Meteo API (real-time conditions)
 
-## System Architecture Diagram
+## AWS Well-Architected Framework Analysis
 
-![Travelway Architecture](/architecture.svg)
+**For detailed AWS Well-Architected Six Pillars analysis, see:** [`AWS_WELL_ARCHITECTED.md`](./AWS_WELL_ARCHITECTED.md)
+
+This document covers:
+- Operational Excellence (monitoring, automation, deployments)
+- Security (encryption, access control, input validation)
+- Reliability (high availability, failover, backups)
+- Performance Efficiency (compute, storage, caching optimization)
+- Cost Optimization (serverless, right-sizing, efficient queries)
+- Sustainability (renewable energy, resource efficiency)
 
 ### Full Data Journey (Left to Right)
 
