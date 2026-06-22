@@ -11,7 +11,7 @@ Travelway is a full-stack travel assistant built with:
 
 ## Complete Application Flow
 
-![Travelway Architecture](/architecture.png)
+See `ARCHITECTURE_DIAGRAM.txt` for detailed ASCII architecture diagram showing all layers and data flow.
 
 ### Full Data Journey (Left to Right)
 

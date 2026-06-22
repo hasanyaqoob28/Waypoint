@@ -1,0 +1,139 @@
+================================================================================
+                TRAVELWAY - COMPLETE APPLICATION FLOW
+================================================================================
+
+LAYER 1: USER INTERFACE (Frontend - Vercel)
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         Travelway UI (React)                                │
+│                                                                              │
+│  • User pastes messy booking confirmation email                            │
+│  • Input form captures raw booking text                                    │
+│  • Live preview shows parsed data                                          │
+│  • Event timeline displays parsed bookings                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    ↓
+                          (Sends raw booking text)
+                                    ↓
+
+LAYER 2: API ENDPOINTS (Next.js Serverless)
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      Next.js API Routes                                     │
+│                                                                              │
+│  POST /api/parse                                                           │
+│  • Receives raw booking text from frontend                                │
+│  • Forwards text to Google Gemini AI                                      │
+│  • Returns parsed structured data                                         │
+│                                                                              │
+│  GET /api/trips                                                            │
+│  • Retrieves all user trips from database                                 │
+│  • Returns trip data with all events                                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    ↓
+                    (Sends messy text to AI for parsing)
+                                    ↓
+
+LAYER 3: AI PROCESSING (Google Gemini - Vercel AI SDK)
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    Google Gemini AI Parser                                  │
+│                                                                              │
+│  Extracts from messy booking email:                                        │
+│  • Flight Number, Airline, Departure Time, Arrival Time                   │
+│  • Terminal Number, Gate Number, Aircraft Type                            │
+│  • Baggage Carousel Number                                                │
+│  • Hotel Name, Hotel Address, Check-in Time, Check-out Time               │
+│  • Activity Name, Time, Location                                          │
+│  • Transit Information (Uber, Train, etc)                                 │
+│                                                                              │
+│  Returns: Structured JSON with all extracted data                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    ↓
+                    (Sends parsed data to database)
+                                    ↓
+
+LAYER 4: PRIMARY DATABASE (Aurora PostgreSQL - AWS)
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    Aurora PostgreSQL Database                              │
+│                                                                              │
+│  TABLE: users                                                              │
+│  ├─ user_id (Primary Key)                                                 │
+│  ├─ email                                                                  │
+│  ├─ created_at                                                            │
+│                                                                              │
+│  TABLE: trips                                                              │
+│  ├─ trip_id (Primary Key)                                                 │
+│  ├─ user_id (Foreign Key → users)                                         │
+│  ├─ destination                                                           │
+│  ├─ title                                                                 │
+│  ├─ raw_booking_text                                                     │
+│  ├─ created_at                                                           │
+│                                                                              │
+│  TABLE: events                                                             │
+│  ├─ event_id (Primary Key)                                                │
+│  ├─ trip_id (Foreign Key → trips)                                         │
+│  ├─ event_type (flight, hotel, activity, transit)                        │
+│  ├─ flight_number, airline, departure_time, arrival_time                 │
+│  ├─ terminal, gate_number                                                │
+│  ├─ hotel_name, hotel_address, checkin_time                              │
+│  ├─ activity_name, activity_time, activity_location                      │
+│  └─ created_at                                                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    ↓
+                    (Fetches trip and event data)
+                                    ↓
+
+LAYER 5: LIVE DISPLAY & OUTPUT (React UI Components)
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     React Components Display                               │
+│                                                                              │
+│  • Event Timeline Strip                                                   │
+│    └─ Shows all events in chronological order                             │
+│    └─ Highlights current/next event based on system time                  │
+│                                                                              │
+│  • Context-Aware Guidance                                                 │
+│    └─ Shows booking-specific information                                  │
+│    └─ For flights: Terminal, Gate, Baggage carousel                      │
+│    └─ For hotels: Address, Check-in time                                 │
+│    └─ For activities: Time, Location, Reservation details                │
+│                                                                              │
+│  • Live Event Cards                                                       │
+│    └─ Displays each event with full details                              │
+│    └─ Shows confirmation numbers                                         │
+│    └─ Displays contact information                                       │
+│                                                                              │
+│  • Weather Widget                                                         │
+│    └─ Fetches from Open-Meteo API                                       │
+│    └─ Shows destination weather                                          │
+│    └─ Updates in real-time                                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+EXTERNAL SERVICES
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  • Open-Meteo Weather API                                                  │
+│    └─ Provides real-time weather data for destination city                │
+│                                                                              │
+│  • Google Gemini API (via Vercel AI SDK)                                  │
+│    └─ Powers the AI parsing of messy booking confirmations               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+COMPLETE DATA FLOW:
+1. User pastes booking email → Travelway UI input form
+2. Frontend sends raw text → POST /api/parse endpoint
+3. API forwards text → Google Gemini AI
+4. AI extracts structured data → Returns parsed JSON
+5. API stores parsed data → Aurora PostgreSQL database
+6. Frontend fetches trips → GET /api/trips endpoint
+7. Database returns user's trips with all events
+8. React displays → Event timeline, guidance panels, weather
+9. User selects event → UI shows context-specific guidance
+10. Weather API → Displays destination weather conditions
+
+TECHNOLOGY STACK:
+• Frontend: React, Next.js (Vercel deployment)
+• API: Next.js serverless functions
+• Database: Amazon Aurora PostgreSQL (Primary backend)
+• AI: Google Gemini (via Vercel AI SDK)
+• External: Open-Meteo Weather API
+• Hosting: Vercel (Frontend + API)
+• Auth: Session-based (stored in PostgreSQL)
+
+================================================================================
