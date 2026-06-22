@@ -9,9 +9,9 @@ Travelway is a full-stack travel assistant built with:
 - **Database:** AWS Aurora PostgreSQL (primary backend)
 - **Weather:** Open-Meteo API (real-time conditions)
 
-## Complete Application Flow
+## System Architecture Diagram
 
-See `ARCHITECTURE_DIAGRAM.txt` for detailed ASCII architecture diagram showing all layers and data flow.
+![Travelway Architecture](/architecture.svg)
 
 ### Full Data Journey (Left to Right)
 
