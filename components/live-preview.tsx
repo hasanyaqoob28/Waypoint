@@ -5,7 +5,7 @@ import { Plane, Clock, MapPin, Wifi, ScanText, Sparkles, Luggage } from "lucide-
 
 /**
  * A self-contained, animated "Live Activity" style preview shown before the
- * user has any trips. It demonstrates what Waypoint produces — a calm, live
+ * user has any trips. It demonstrates what Travelway AI produces — a calm, live
  * travel-day card — instead of explaining it with static text.
  */
 export function LivePreview() {
@@ -123,7 +123,7 @@ export function LivePreview() {
       <div className="relative mx-auto mt-4 flex max-w-[300px] items-center gap-2 rounded-xl border border-border bg-card/60 px-3 py-2.5">
         <MapPin className="size-4 shrink-0 text-accent" />
         <p className="text-[11px] leading-relaxed text-muted-foreground">
-          After landing, Waypoint shows your hotel check-in and a dinner
+          After landing, Travelway AI shows your hotel check-in and a dinner
           reservation at <span className="font-medium text-foreground">Narisawa</span>.
         </p>
       </div>

@@ -11,9 +11,9 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Waypoint — Context-Aware Travel Day Copilot',
+  title: 'Travelway — Your whole trip, in one calm timeline',
   description:
-    'Waypoint parses messy travel confirmations with AI and guides you through your travel day, from pre-flight to landing to the gaps in between.',
+    'Travelway parses messy travel confirmations with AI and guides you through your entire trip, from pre-flight to landing to the gaps in between.',
   generator: 'v0.app',
   icons: {
     icon: [
