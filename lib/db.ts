@@ -15,7 +15,7 @@ function initializeSigner() {
       }),
       region: process.env.AWS_REGION,
       hostname: process.env.PGHOST,
-      username: process.env.PGUSER || 'postgres',
+      username: 'iam_postgres',
       port: 5432,
     })
   }
@@ -26,7 +26,7 @@ const pool = new Pool({
   host: process.env.PGHOST,
   database: process.env.PGDATABASE || 'postgres',
   port: 5432,
-  user: process.env.PGUSER || 'postgres',
+  user: 'iam_postgres',
   // The auth token value can be cached for up to 15 minutes (900 seconds) if desired.
   password: () => initializeSigner().getAuthToken(),
   // Recommended to switch to `true` in production.
