@@ -1,6 +1,7 @@
 import { generateText, Output } from "ai"
 import { google } from "@ai-sdk/google"
 import { itinerarySchema } from "@/lib/itinerary-schema"
+import { query } from "@/lib/db"
 import { fallbackParse } from "@/lib/fallback-parser"
 import type { ItineraryEvent, Trip } from "@/lib/types"
 
@@ -77,11 +78,19 @@ export async function POST(request: Request) {
       parsedBy = "fallback"
     }
 
-    // For hackathon demo: trip data is managed in-memory/frontend
-    // In production: Aurora PostgreSQL would store all trips and events
+    // Save trip to Aurora PostgreSQL
+    const tripResult = await query(
+      `INSERT INTO trips (user_id, destination, title, raw_booking_text, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+       RETURNING id, user_id, destination, title, raw_booking_text, created_at, updated_at`,
+      [parseInt(userId) || 1, destination, title, rawText]
+    )
+
+    const tripId = tripResult.rows[0]?.id
+
     const trip = {
       userId,
-      tripId: `trip_${Date.now()}`,
+      tripId,
       title,
       destination,
       status: "Active",
