@@ -1,9 +1,35 @@
 import { Pool, ClientBase } from 'pg'
 import { attachDatabasePool } from '@vercel/functions'
 
+// Initialize pool - connect to postgres db first to create travelway db
+const adminPool = new Pool({
+  host: process.env.PGHOST,
+  database: 'postgres',
+  port: 5432,
+  user: process.env.PGUSER || 'postgres',
+  password: process.env.PGPASSWORD,
+  ssl: { rejectUnauthorized: false },
+  max: 5,
+})
+
+// Create travelway database if it doesn't exist
+async function ensureDatabase() {
+  try {
+    await adminPool.query(`CREATE DATABASE travelway;`)
+    console.log('[v0] Database travelway created')
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('already exists')) {
+      console.log('[v0] Database travelway already exists')
+    } else {
+      console.error('[v0] Error creating database:', error)
+    }
+  }
+}
+
+// Main pool for queries
 const pool = new Pool({
   host: process.env.PGHOST,
-  database: process.env.PGDATABASE || 'travelway',
+  database: 'travelway',
   port: 5432,
   user: process.env.PGUSER || 'postgres',
   password: process.env.PGPASSWORD,
@@ -14,6 +40,7 @@ attachDatabasePool(pool)
 
 // Auto-create schema on startup if tables don't exist
 async function initializeSchema() {
+  await ensureDatabase()
   try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
