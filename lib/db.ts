@@ -1,15 +1,22 @@
 import { Pool, ClientBase } from 'pg'
+import { Signer } from '@aws-sdk/rds-signer'
+import { fromEnv } from '@aws-sdk/credential-providers'
 import { attachDatabasePool } from '@vercel/functions'
 
-// Direct Aurora PostgreSQL connection using environment variables
+const signer = new Signer({
+  credentials: fromEnv(),
+  region: process.env.AWS_REGION || 'us-east-1',
+  hostname: process.env.PGHOST,
+  username: process.env.PGUSER || 'postgres',
+  port: 5432,
+})
+
 const pool = new Pool({
   host: process.env.PGHOST,
   database: process.env.PGDATABASE || 'travelway',
   port: 5432,
   user: process.env.PGUSER || 'postgres',
-  // For IAM auth: token will be generated via AWS credentials
-  // For password auth: set PGPASSWORD environment variable
-  password: process.env.PGPASSWORD,
+  password: () => signer.getAuthToken(),
   ssl: { rejectUnauthorized: false },
   max: 20,
 })
