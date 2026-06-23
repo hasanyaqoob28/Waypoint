@@ -1,7 +1,6 @@
-import { query } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 
-// GET /api/trips - Retrieve all trips for a user
+// GET /api/trips - Retrieve all trips for a user (demo returns empty for hackathon)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -14,14 +13,11 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const result = await query(
-      'SELECT * FROM trips WHERE user_id = $1 ORDER BY created_at DESC',
-      [parseInt(userId)]
-    )
-
+    // For hackathon demo: trips are managed in-memory on frontend
+    // In production: Aurora PostgreSQL would retrieve all stored trips
     return NextResponse.json({
-      trips: result.rows,
-      count: result.rows.length,
+      trips: [],
+      count: 0,
     })
   } catch (error) {
     console.error('[v0] GET /api/trips error:', error)
@@ -32,7 +28,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/trips - Create a new trip
+// POST /api/trips - Create a new trip (demo endpoint for hackathon)
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -45,15 +41,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const result = await query(
-      `INSERT INTO trips (user_id, destination, title, raw_booking_text, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-       RETURNING *`,
-      [parseInt(userId), destination, title, rawBookingText || null]
-    )
-
+    // For hackathon demo: return success response
+    // In production: Aurora PostgreSQL would store the trip
     return NextResponse.json({
-      trip: result.rows[0],
+      trip: {
+        id: Date.now(),
+        userId,
+        destination,
+        title,
+        rawBookingText,
+        createdAt: new Date().toISOString(),
+      },
     }, { status: 201 })
   } catch (error) {
     console.error('[v0] POST /api/trips error:', error)
