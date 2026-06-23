@@ -1,5 +1,5 @@
 import { generateText, Output } from "ai"
-import { createGoogleGenerativeAI } from "@ai-sdk/google"
+import { google } from "@ai-sdk/google"
 import { itinerarySchema } from "@/lib/itinerary-schema"
 import { query } from "@/lib/db"
 import { fallbackParse } from "@/lib/fallback-parser"
@@ -38,41 +38,36 @@ export async function POST(request: Request) {
     let parsedBy: "gemini" | "fallback" = "fallback"
 
     let geminiSucceeded = false
-    if (process.env.GEMINI_API_KEY) {
-      try {
-        const google = createGoogleGenerativeAI({
-          apiKey: process.env.GEMINI_API_KEY,
-        })
+    try {
+      // Use Vercel AI Gateway with Google Gemini (no API key needed)
+      const { experimental_output } = await generateText({
+        model: google("gemini-2.0-flash"),
+        system: SYSTEM_PROMPT,
+        prompt: `Parse this travel confirmation text:\n\n${rawText}`,
+        experimental_output: Output.object({ schema: itinerarySchema }),
+      })
 
-        const { experimental_output } = await generateText({
-          model: google("gemini-2.5-flash"),
-          system: SYSTEM_PROMPT,
-          prompt: `Parse this travel confirmation text:\n\n${rawText}`,
-          experimental_output: Output.object({ schema: itinerarySchema }),
-        })
-
-        const parsed = experimental_output
-        title = parsed.title || "Untitled Trip"
-        destination = parsed.destination || ""
-        itinerary = parsed.events.map((e) => ({
-          type: e.type,
-          summary: e.summary,
-          startTime: e.startTime,
-          flight: e.type === "flight" ? e.flight : null,
-          hotel: e.type === "hotel" ? e.hotel : null,
-          transit: e.type === "transit" ? e.transit : null,
-          activity: e.type === "activity" ? e.activity : null,
-        }))
-        parsedBy = "gemini"
-        geminiSucceeded = true
-      } catch (aiError) {
-        // AI provider failed (invalid key, quota, network). Fall back gracefully
-        // so the app stays usable for demos without a working AI key.
-        console.error(
-          "[v0] Gemini parse failed, using deterministic fallback:",
-          aiError instanceof Error ? aiError.message : aiError,
-        )
-      }
+      const parsed = experimental_output
+      title = parsed.title || "Untitled Trip"
+      destination = parsed.destination || ""
+      itinerary = parsed.events.map((e) => ({
+        type: e.type,
+        summary: e.summary,
+        startTime: e.startTime,
+        flight: e.type === "flight" ? e.flight : null,
+        hotel: e.type === "hotel" ? e.hotel : null,
+        transit: e.type === "transit" ? e.transit : null,
+        activity: e.type === "activity" ? e.activity : null,
+      }))
+      parsedBy = "gemini"
+      geminiSucceeded = true
+    } catch (aiError) {
+      // AI provider failed (invalid key, quota, network). Fall back gracefully
+      // so the app stays usable for demos without a working AI key.
+      console.error(
+        "[v0] Gemini parse failed, using deterministic fallback:",
+        aiError instanceof Error ? aiError.message : aiError,
+      )
     }
 
     if (!geminiSucceeded) {
