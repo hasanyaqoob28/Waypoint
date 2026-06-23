@@ -3,17 +3,24 @@ import { Signer } from '@aws-sdk/rds-signer'
 import { getCredentialsFromOIDCProvider } from '@vercel/oidc-aws-credentials-provider'
 import { attachDatabasePool } from '@vercel/functions'
 
-const signer = new Signer({
-  credentials: getCredentialsFromOIDCProvider({
-    roleArn: process.env.AWS_ROLE_ARN,
-    audience: 'https://vercel.com/hassan-yaqoob-s-projects',
-    region: process.env.AWS_REGION,
-  }),
-  region: process.env.AWS_REGION,
-  hostname: process.env.PGHOST,
-  username: process.env.PGUSER || 'postgres',
-  port: 5432,
-})
+let signer: Signer | null = null
+
+function initializeSigner() {
+  if (!signer) {
+    signer = new Signer({
+      credentials: getCredentialsFromOIDCProvider({
+        roleArn: process.env.AWS_ROLE_ARN,
+        audience: 'https://vercel.com/hassan-yaqoob-s-projects',
+        region: process.env.AWS_REGION,
+      }),
+      region: process.env.AWS_REGION,
+      hostname: process.env.PGHOST,
+      username: process.env.PGUSER || 'postgres',
+      port: 5432,
+    })
+  }
+  return signer
+}
 
 const pool = new Pool({
   host: process.env.PGHOST,
@@ -21,7 +28,7 @@ const pool = new Pool({
   port: 5432,
   user: process.env.PGUSER || 'postgres',
   // The auth token value can be cached for up to 15 minutes (900 seconds) if desired.
-  password: () => signer.getAuthToken(),
+  password: () => initializeSigner().getAuthToken(),
   // Recommended to switch to `true` in production.
   // See https://docs.aws.amazon.com/lambda/latest/dg/services-rds.html#rds-lambda-certificates
   ssl: { rejectUnauthorized: false },
