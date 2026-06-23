@@ -1,6 +1,6 @@
 import { Pool, ClientBase } from 'pg'
 import { Signer } from '@aws-sdk/rds-signer'
-import { getCredentialsFromOIDCProvider } from '@vercel/oidc-aws-credentials-provider'
+import { awsCredentialsProvider } from '@vercel/oidc-aws-credentials-provider'
 import { attachDatabasePool } from '@vercel/functions'
 
 let signer: Signer | null = null
@@ -8,7 +8,7 @@ let signer: Signer | null = null
 function initializeSigner() {
   if (!signer) {
     signer = new Signer({
-      credentials: getCredentialsFromOIDCProvider({
+      credentials: awsCredentialsProvider({
         roleArn: process.env.AWS_ROLE_ARN,
         audience: 'https://vercel.com/hassan-yaqoob-s-projects',
         region: process.env.AWS_REGION,
