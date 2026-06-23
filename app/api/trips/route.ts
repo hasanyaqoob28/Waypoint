@@ -15,8 +15,9 @@ export async function GET(request: Request) {
     )
     return Response.json(result.rows)
   } catch (error) {
-    console.error('[v0] Database error:', error)
-    return Response.json({ error: 'Failed to fetch trips' }, { status: 500 })
+    const errorMsg = error instanceof Error ? error.message : String(error)
+    console.error('[v0] GET /api/trips error:', errorMsg)
+    return Response.json({ error: 'Failed to fetch trips', details: errorMsg }, { status: 500 })
   }
 }
 
@@ -35,7 +36,8 @@ export async function POST(request: Request) {
 
     return Response.json(result.rows[0], { status: 201 })
   } catch (error) {
-    console.error('[v0] Database error:', error)
-    return Response.json({ error: 'Failed to create trip' }, { status: 500 })
+    const errorMsg = error instanceof Error ? error.message : String(error)
+    console.error('[v0] POST /api/trips error:', errorMsg)
+    return Response.json({ error: 'Failed to create trip', details: errorMsg }, { status: 500 })
   }
 }
