@@ -7,6 +7,7 @@ const signer = new Signer({
   credentials: awsCredentialsProvider({
     roleArn: process.env.AWS_ROLE_ARN,
     clientConfig: { region: process.env.AWS_REGION },
+    audience: 'https://vercel.com/hassan-yaqoob-s-projects',
   }),
   region: process.env.AWS_REGION,
   hostname: process.env.PGHOST,
