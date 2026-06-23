@@ -10,7 +10,7 @@ function initializeSigner() {
     signer = new Signer({
       credentials: awsCredentialsProvider({
         roleArn: process.env.AWS_ROLE_ARN,
-        audience: 'https://vercel.com/hassan-yaqoob-s-projects',
+        audience: 'sts.amazonaws.com',
         region: process.env.AWS_REGION,
       }),
       region: process.env.AWS_REGION,
