@@ -1,17 +1,29 @@
 import { Pool, ClientBase } from 'pg'
+import { Signer } from '@aws-sdk/rds-signer'
+import { awsCredentialsProvider } from '@vercel/oidc-aws-credentials-provider'
 import { attachDatabasePool } from '@vercel/functions'
 
-// Parse password - handle both plain string and JSON format from Secrets Manager
-function getPassword(): string {
-  const pwd = process.env.PGPASSWORD || ''
-  try {
-    // Try parsing as JSON first (Secrets Manager format)
-    const parsed = JSON.parse(pwd)
-    return parsed.password || pwd
-  } catch {
-    // Fall back to plain string
-    return pwd
+let signer: Signer | null = null
+
+function initializeSigner() {
+  if (!signer && process.env.AWS_ROLE_ARN) {
+    try {
+      signer = new Signer({
+        credentials: awsCredentialsProvider({
+          roleArn: process.env.AWS_ROLE_ARN,
+          audience: 'sts.amazonaws.com',
+          region: process.env.AWS_REGION,
+        }),
+        region: process.env.AWS_REGION,
+        hostname: process.env.PGHOST,
+        username: process.env.PGUSER || 'postgres',
+        port: 5432,
+      })
+    } catch (e) {
+      console.log('[v0] IAM signer init error, falling back to password')
+    }
   }
+  return signer
 }
 
 const pool = new Pool({
@@ -19,7 +31,18 @@ const pool = new Pool({
   database: 'travelway',
   port: 5432,
   user: process.env.PGUSER || 'postgres',
-  password: getPassword(),
+  password: () => {
+    const s = initializeSigner()
+    if (s) {
+      try {
+        return s.getAuthToken()
+      } catch (e) {
+        console.log('[v0] IAM token error:', e instanceof Error ? e.message : e)
+        return process.env.PGPASSWORD || ''
+      }
+    }
+    return process.env.PGPASSWORD || ''
+  },
   ssl: { rejectUnauthorized: false },
   max: 20,
 })
