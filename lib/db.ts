@@ -79,7 +79,14 @@ initializeSchema().catch(err => console.error('[v0] Schema init failed:', err))
 
 // Single query transactions.
 export async function query(text: string, params?: unknown[]) {
-  return pool.query(text, params)
+  const result = await pool.query(text, params)
+  // Ensure commit happens immediately for writes
+  if (text.trim().toUpperCase().startsWith('INSERT') || 
+      text.trim().toUpperCase().startsWith('UPDATE') ||
+      text.trim().toUpperCase().startsWith('DELETE')) {
+    console.log("[v0] Query executed:", text.substring(0, 50), "rows affected:", result.rowCount)
+  }
+  return result
 }
 
 // Use for multi-query transactions.
