@@ -88,8 +88,8 @@ export async function POST(request: Request) {
     if (userCheck.rows.length === 0) {
       try {
         await query(
-          `INSERT INTO users (id, created_at, updated_at) VALUES ($1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-          [parsedUserId]
+          `INSERT INTO users (id, email, password_hash, created_at, updated_at) VALUES ($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+          [parsedUserId, `user_${parsedUserId}@travelway.local`, 'placeholder_hash']
         )
       } catch (userCreateError) {
         console.error("[v0] Failed to create user:", userCreateError instanceof Error ? userCreateError.message : userCreateError)
