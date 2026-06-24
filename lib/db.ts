@@ -31,16 +31,21 @@ const pool = new Pool({
   database: 'travelway',
   port: 5432,
   user: process.env.PGUSER || 'postgres',
-  password: () => {
+  password: async () => {
     const s = initializeSigner()
-    if (s) {
+    if (s && process.env.AWS_ROLE_ARN) {
       try {
-        return s.getAuthToken()
+        console.log('[v0] Attempting IAM token generation for user:', process.env.PGUSER)
+        const token = await s.getAuthToken()
+        console.log('[v0] IAM token generated successfully, length:', token.length)
+        return token
       } catch (e) {
-        console.log('[v0] IAM token error:', e instanceof Error ? e.message : e)
+        console.error('[v0] IAM token generation failed:', e instanceof Error ? e.message : String(e))
+        console.log('[v0] Falling back to password auth')
         return process.env.PGPASSWORD || ''
       }
     }
+    console.log('[v0] No IAM role, using password auth')
     return process.env.PGPASSWORD || ''
   },
   ssl: { rejectUnauthorized: false },
