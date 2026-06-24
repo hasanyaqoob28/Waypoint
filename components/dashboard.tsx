@@ -22,7 +22,36 @@ const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 export function Dashboard() {
   const { data, isLoading } = useSWR<{ trips: Trip[] }>(TRIPS_KEY, fetcher)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  
+  // Initialize selectedId from localStorage
+  const [selectedId, setSelectedId] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("selectedTripId")
+    }
+    return null
+  })
+
+  // Persist selected trip ID to localStorage whenever it changes
+  useEffect(() => {
+    if (selectedId && typeof window !== "undefined") {
+      localStorage.setItem("selectedTripId", selectedId)
+    }
+  }, [selectedId])
+
+  // Handle tab visibility changes - restore state when tab becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (typeof window !== "undefined" && document.visibilityState === "visible") {
+        const saved = localStorage.getItem("selectedTripId")
+        if (saved && saved !== selectedId) {
+          setSelectedId(saved)
+        }
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange)
+  }, [selectedId])
 
   const trips = useMemo(() => data?.trips ?? [], [data])
   const activeTrip = useMemo(
@@ -157,6 +186,7 @@ export function Dashboard() {
             </div>
           ) : activeTrip ? (
             <ActiveTrip
+              key={activeTrip.tripId}
               trip={activeTrip}
               onDelete={() => handleDelete(activeTrip)}
             />
@@ -187,7 +217,7 @@ function ActiveTrip({
     updateAutoIndex()
     const interval = setInterval(updateAutoIndex, 60000)
     return () => clearInterval(interval)
-  }, [trip])
+  }, [trip.tripId])
 
   // Use auto-detected index if available, otherwise manual selection
   const eventIndex = autoIndex !== null ? autoIndex : selectedEventIndex

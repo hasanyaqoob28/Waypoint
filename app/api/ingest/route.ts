@@ -1,7 +1,7 @@
 import { generateText, Output } from "ai"
-import { createGoogleGenerativeAI } from "@ai-sdk/google"
+import { google } from "@ai-sdk/google"
 import { itinerarySchema } from "@/lib/itinerary-schema"
-import { saveTrip } from "@/lib/db"
+import { query } from "@/lib/db"
 import { fallbackParse } from "@/lib/fallback-parser"
 import type { ItineraryEvent, Trip } from "@/lib/types"
 
@@ -38,41 +38,36 @@ export async function POST(request: Request) {
     let parsedBy: "gemini" | "fallback" = "fallback"
 
     let geminiSucceeded = false
-    if (process.env.GEMINI_API_KEY) {
-      try {
-        const google = createGoogleGenerativeAI({
-          apiKey: process.env.GEMINI_API_KEY,
-        })
+    try {
+      // Use Vercel AI Gateway with Google Gemini (no API key needed)
+      const { experimental_output } = await generateText({
+        model: google("gemini-2.0-flash"),
+        system: SYSTEM_PROMPT,
+        prompt: `Parse this travel confirmation text:\n\n${rawText}`,
+        experimental_output: Output.object({ schema: itinerarySchema }),
+      })
 
-        const { experimental_output } = await generateText({
-          model: google("gemini-2.5-flash"),
-          system: SYSTEM_PROMPT,
-          prompt: `Parse this travel confirmation text:\n\n${rawText}`,
-          experimental_output: Output.object({ schema: itinerarySchema }),
-        })
-
-        const parsed = experimental_output
-        title = parsed.title || "Untitled Trip"
-        destination = parsed.destination || ""
-        itinerary = parsed.events.map((e) => ({
-          type: e.type,
-          summary: e.summary,
-          startTime: e.startTime,
-          flight: e.type === "flight" ? e.flight : null,
-          hotel: e.type === "hotel" ? e.hotel : null,
-          transit: e.type === "transit" ? e.transit : null,
-          activity: e.type === "activity" ? e.activity : null,
-        }))
-        parsedBy = "gemini"
-        geminiSucceeded = true
-      } catch (aiError) {
-        // AI provider failed (invalid key, quota, network). Fall back gracefully
-        // so the app stays usable for demos without a working AI key.
-        console.error(
-          "[v0] Gemini parse failed, using deterministic fallback:",
-          aiError instanceof Error ? aiError.message : aiError,
-        )
-      }
+      const parsed = experimental_output
+      title = parsed.title || "Untitled Trip"
+      destination = parsed.destination || ""
+      itinerary = parsed.events.map((e) => ({
+        type: e.type,
+        summary: e.summary,
+        startTime: e.startTime,
+        flight: e.type === "flight" ? e.flight : null,
+        hotel: e.type === "hotel" ? e.hotel : null,
+        transit: e.type === "transit" ? e.transit : null,
+        activity: e.type === "activity" ? e.activity : null,
+      }))
+      parsedBy = "gemini"
+      geminiSucceeded = true
+    } catch (aiError) {
+      // AI provider failed (invalid key, quota, network). Fall back gracefully
+      // so the app stays usable for demos without a working AI key.
+      console.error(
+        "[v0] Gemini parse failed, using deterministic fallback:",
+        aiError instanceof Error ? aiError.message : aiError,
+      )
     }
 
     if (!geminiSucceeded) {
@@ -83,17 +78,87 @@ export async function POST(request: Request) {
       parsedBy = "fallback"
     }
 
-    const trip: Trip = {
+    // Ensure user exists before creating trip
+    const parsedUserId = parseInt(userId) || 1
+    
+    // Check if user exists
+    const userCheck = await query('SELECT id FROM users WHERE id = $1', [parsedUserId])
+    
+    // If user doesn't exist, create them
+    if (userCheck.rows.length === 0) {
+      try {
+        await query(
+          `INSERT INTO users (id, email, password_hash, created_at, updated_at) VALUES ($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+          [parsedUserId, `user_${parsedUserId}@travelway.local`, 'placeholder_hash']
+        )
+      } catch (userCreateError) {
+        console.error("[v0] Failed to create user:", userCreateError instanceof Error ? userCreateError.message : userCreateError)
+        throw new Error(`Failed to create user ${parsedUserId}`)
+      }
+    }
+
+    // Save trip to Aurora PostgreSQL
+    console.log("[v0] Attempting insert for user:", parsedUserId)
+    const tripResult = await query(
+      `INSERT INTO trips (user_id, destination, title, raw_booking_text, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+       RETURNING id, user_id, destination, title, raw_booking_text, created_at, updated_at`,
+      [parsedUserId, destination, title, rawText]
+    )
+
+    console.log("[v0] Insert result rows:", tripResult.rows.length)
+    const tripId = tripResult.rows[0]?.id
+    console.log("[v0] Trip id:", tripId)
+
+    // Insert events into database
+    if (itinerary && itinerary.length > 0) {
+      for (const event of itinerary) {
+        try {
+          await query(
+            `INSERT INTO events (trip_id, event_type, flight_number, airline, departure_airport, arrival_airport, 
+              departure_time, arrival_time, terminal, gate, seat_number, baggage_carousel, hotel_name, hotel_address, 
+              check_in_time, check_out_time, confirmation_number, activity_name, activity_location, activity_time, notes,
+              created_at, updated_at)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+            [
+              tripId,
+              event.type,
+              event.flightNumber || null,
+              event.airline || null,
+              event.departureAirport || null,
+              event.arrivalAirport || null,
+              event.departureTime || null,
+              event.arrivalTime || null,
+              event.terminal || null,
+              event.gate || null,
+              event.seatNumber || null,
+              event.baggageCarousel || null,
+              event.hotelName || null,
+              event.hotelAddress || null,
+              event.checkInTime || null,
+              event.checkOutTime || null,
+              event.confirmationNumber || null,
+              event.activityName || null,
+              event.activityLocation || null,
+              event.activityTime || null,
+              event.notes || null,
+            ]
+          )
+        } catch (eventError) {
+          console.error("[v0] Failed to insert event:", eventError instanceof Error ? eventError.message : eventError)
+        }
+      }
+    }
+
+    const trip = {
       userId,
-      tripId: `trip_${Date.now()}`,
+      tripId,
       title,
       destination,
       status: "Active",
       syncedAt: new Date().toISOString(),
       itinerary,
     }
-
-    await saveTrip(trip)
 
     return Response.json({ success: true, trip, parsedBy })
   } catch (error) {

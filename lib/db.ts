@@ -1,194 +1,102 @@
-import {
-  DynamoDBClient,
-  CreateTableCommand,
-  DescribeTableCommand,
-  ResourceNotFoundException,
-} from "@aws-sdk/client-dynamodb"
-import {
-  DynamoDBDocumentClient,
-  PutCommand,
-  QueryCommand,
-  GetCommand,
-  DeleteCommand,
-} from "@aws-sdk/lib-dynamodb"
-import type { Trip } from "./types"
-import {
-  localSaveTrip,
-  localGetTrips,
-  localGetTrip,
-  localDeleteTrip,
-} from "./local-store"
+import { Pool, ClientBase } from 'pg'
+import { attachDatabasePool } from '@vercel/functions'
 
-export const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || "WaypointTrips"
-
-// DynamoDB is used when AWS credentials are present in the environment.
-// Otherwise we fall back to an on-disk JSON store so the app stays usable.
-export const hasDynamoCreds = Boolean(
-  process.env.AWS_REGION &&
-    process.env.AWS_ACCESS_KEY_ID &&
-    process.env.AWS_SECRET_ACCESS_KEY,
-)
-
-export const storageBackend = hasDynamoCreds ? "dynamodb" : "local"
-
-const client = new DynamoDBClient({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
-  },
+const pool = new Pool({
+  host: process.env.PGHOST,
+  database: process.env.PGDATABASE || 'travelway_new',
+  port: 5432,
+  user: process.env.PGUSER || 'postgres',
+  password: process.env.PGPASSWORD,
+  ssl: { rejectUnauthorized: false },
+  max: 20,
 })
+attachDatabasePool(pool)
 
-const docClient = DynamoDBDocumentClient.from(client, {
-  marshallOptions: { removeUndefinedValues: true },
-})
-
-let tableReady: Promise<void> | null = null
-
-/**
- * Ensures the WaypointTrips table exists, creating it on first use.
- * Partition key: userId (String), Sort key: tripId (String).
- */
-export async function ensureTable(): Promise<void> {
-  if (tableReady) return tableReady
-
-  tableReady = (async () => {
-    try {
-      await client.send(new DescribeTableCommand({ TableName: TABLE_NAME }))
-      return
-    } catch (err) {
-      if (!(err instanceof ResourceNotFoundException)) throw err
-    }
-
-    await client.send(
-      new CreateTableCommand({
-        TableName: TABLE_NAME,
-        BillingMode: "PAY_PER_REQUEST",
-        AttributeDefinitions: [
-          { AttributeName: "userId", AttributeType: "S" },
-          { AttributeName: "tripId", AttributeType: "S" },
-        ],
-        KeySchema: [
-          { AttributeName: "userId", KeyType: "HASH" },
-          { AttributeName: "tripId", KeyType: "RANGE" },
-        ],
-      }),
-    )
-
-    // Wait until the table becomes ACTIVE before allowing writes.
-    for (let i = 0; i < 30; i++) {
-      const desc = await client.send(
-        new DescribeTableCommand({ TableName: TABLE_NAME }),
-      )
-      if (desc.Table?.TableStatus === "ACTIVE") return
-      await new Promise((r) => setTimeout(r, 1000))
-    }
-  })()
-
-  return tableReady
-}
-
-async function ddbSaveTrip(trip: Trip): Promise<void> {
-  await ensureTable()
-  await docClient.send(
-    new PutCommand({
-      TableName: TABLE_NAME,
-      Item: trip,
-    }),
-  )
-}
-
-async function ddbGetTrips(userId: string): Promise<Trip[]> {
-  await ensureTable()
-  const result = await docClient.send(
-    new QueryCommand({
-      TableName: TABLE_NAME,
-      KeyConditionExpression: "userId = :uid",
-      ExpressionAttributeValues: { ":uid": userId },
-    }),
-  )
-  const trips = (result.Items || []) as Trip[]
-  return trips.sort((a, b) => (b.syncedAt > a.syncedAt ? 1 : -1))
-}
-
-async function ddbGetTrip(
-  userId: string,
-  tripId: string,
-): Promise<Trip | null> {
-  await ensureTable()
-  const result = await docClient.send(
-    new GetCommand({
-      TableName: TABLE_NAME,
-      Key: { userId, tripId },
-    }),
-  )
-  return (result.Item as Trip) || null
-}
-
-async function ddbDeleteTrip(userId: string, tripId: string): Promise<void> {
-  await ensureTable()
-  await docClient.send(
-    new DeleteCommand({
-      TableName: TABLE_NAME,
-      Key: { userId, tripId },
-    }),
-  )
-}
-
-// ---- Public dispatchers: DynamoDB when credentialed & reachable, on-disk
-// JSON otherwise. If DynamoDB is configured but errors at runtime (invalid
-// token, throttling, etc.) we fall back to local storage so the app keeps
-// working — useful for demos before valid AWS creds are wired up.
-
-function logDdbFallback(op: string, err: unknown) {
-  console.error(
-    `[v0] DynamoDB ${op} failed, using local store:`,
-    err instanceof Error ? err.message : err,
-  )
-}
-
-export async function saveTrip(trip: Trip): Promise<void> {
-  if (!hasDynamoCreds) return localSaveTrip(trip)
+// Auto-create schema on startup if tables don't exist
+async function initializeSchema() {
   try {
-    return await ddbSaveTrip(trip)
-  } catch (err) {
-    logDdbFallback("saveTrip", err)
-    return localSaveTrip(trip)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        password_hash VARCHAR(255) NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+
+      CREATE TABLE IF NOT EXISTS trips (
+        id SERIAL PRIMARY KEY,
+        user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        destination VARCHAR(255) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        raw_booking_text TEXT,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_trips_user_id ON trips(user_id);
+      CREATE INDEX IF NOT EXISTS idx_trips_created_at ON trips(user_id, created_at DESC);
+
+      CREATE TABLE IF NOT EXISTS events (
+        id SERIAL PRIMARY KEY,
+        trip_id INT NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
+        event_type VARCHAR(50) NOT NULL,
+        flight_number VARCHAR(20),
+        airline VARCHAR(100),
+        departure_airport VARCHAR(10),
+        arrival_airport VARCHAR(10),
+        departure_time TIMESTAMPTZ,
+        arrival_time TIMESTAMPTZ,
+        terminal VARCHAR(10),
+        gate VARCHAR(10),
+        seat_number VARCHAR(10),
+        baggage_carousel VARCHAR(20),
+        hotel_name VARCHAR(255),
+        hotel_address TEXT,
+        check_in_time TIMESTAMPTZ,
+        check_out_time TIMESTAMPTZ,
+        confirmation_number VARCHAR(50),
+        activity_name VARCHAR(255),
+        activity_location VARCHAR(255),
+        activity_time TIMESTAMPTZ,
+        notes TEXT,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_events_trip_id ON events(trip_id);
+      CREATE INDEX IF NOT EXISTS idx_events_type ON events(trip_id, event_type);
+      CREATE INDEX IF NOT EXISTS idx_events_departure_time ON events(trip_id, departure_time);
+      CREATE INDEX IF NOT EXISTS idx_events_check_in_time ON events(trip_id, check_in_time);
+    `)
+    console.log('[v0] Database schema initialized')
+  } catch (error) {
+    console.log('[v0] Schema init note:', error instanceof Error ? error.message : 'Unknown error')
   }
 }
 
-export async function getTrips(userId: string): Promise<Trip[]> {
-  if (!hasDynamoCreds) return localGetTrips(userId)
-  try {
-    return await ddbGetTrips(userId)
-  } catch (err) {
-    logDdbFallback("getTrips", err)
-    return localGetTrips(userId)
+// Initialize schema on first import
+initializeSchema().catch(err => console.error('[v0] Schema init failed:', err))
+
+// Single query transactions.
+export async function query(text: string, params?: unknown[]) {
+  const result = await pool.query(text, params)
+  // Ensure commit happens immediately for writes
+  if (text.trim().toUpperCase().startsWith('INSERT') || 
+      text.trim().toUpperCase().startsWith('UPDATE') ||
+      text.trim().toUpperCase().startsWith('DELETE')) {
+    console.log("[v0] Query executed:", text.substring(0, 50), "rows affected:", result.rowCount)
   }
+  return result
 }
 
-export async function getTrip(
-  userId: string,
-  tripId: string,
-): Promise<Trip | null> {
-  if (!hasDynamoCreds) return localGetTrip(userId, tripId)
+// Use for multi-query transactions.
+export async function withConnection<T>(
+  fn: (client: ClientBase) => Promise<T>,
+): Promise<T> {
+  const client = await pool.connect()
   try {
-    return await ddbGetTrip(userId, tripId)
-  } catch (err) {
-    logDdbFallback("getTrip", err)
-    return localGetTrip(userId, tripId)
-  }
-}
-
-export async function deleteTrip(
-  userId: string,
-  tripId: string,
-): Promise<void> {
-  if (!hasDynamoCreds) return localDeleteTrip(userId, tripId)
-  try {
-    return await ddbDeleteTrip(userId, tripId)
-  } catch (err) {
-    logDdbFallback("deleteTrip", err)
-    return localDeleteTrip(userId, tripId)
+    return await fn(client)
+  } finally {
+    client.release()
   }
 }

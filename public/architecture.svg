@@ -1,0 +1,168 @@
+<svg viewBox="0 0 1200 900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-size: 28px; font-weight: bold; }
+      .label { font-size: 14px; font-weight: bold; }
+      .text { font-size: 12px; }
+      .pillar { font-size: 11px; font-weight: bold; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="900" fill="#f8f9fa"/>
+
+  <!-- Title -->
+  <text x="600" y="35" text-anchor="middle" class="title">Travelway - AWS Well-Architected Architecture</text>
+
+  <!-- Six Pillars Row -->
+  <g id="pillars">
+    <!-- Operational Excellence -->
+    <rect x="50" y="50" width="150" height="50" fill="#FF9900" rx="5"/>
+    <text x="127" y="85" text-anchor="middle" class="pillar" fill="white">Operational Excellence</text>
+
+    <!-- Security -->
+    <rect x="220" y="50" width="150" height="50" fill="#E74C3C" rx="5"/>
+    <text x="295" y="85" text-anchor="middle" class="pillar" fill="white">Security</text>
+
+    <!-- Reliability -->
+    <rect x="390" y="50" width="150" height="50" fill="#3498DB" rx="5"/>
+    <text x="465" y="85" text-anchor="middle" class="pillar" fill="white">Reliability</text>
+
+    <!-- Performance -->
+    <rect x="560" y="50" width="150" height="50" fill="#27AE60" rx="5"/>
+    <text x="635" y="85" text-anchor="middle" class="pillar" fill="white">Performance</text>
+
+    <!-- Cost Optimization -->
+    <rect x="730" y="50" width="150" height="50" fill="#F39C12" rx="5"/>
+    <text x="805" y="85" text-anchor="middle" class="pillar" fill="white">Cost Optimization</text>
+
+    <!-- Sustainability -->
+    <rect x="900" y="50" width="150" height="50" fill="#16A085" rx="5"/>
+    <text x="975" y="85" text-anchor="middle" class="pillar" fill="white">Sustainability</text>
+  </g>
+
+  <!-- Layer 1: User -->
+  <g id="layer1">
+    <text x="600" y="150" text-anchor="middle" class="label" fill="#333">LAYER 1: USER CLIENT</text>
+    <rect x="400" y="160" width="400" height="60" fill="#E3F2FD" stroke="#1976D2" stroke-width="2" rx="5"/>
+    <text x="600" y="185" text-anchor="middle" class="text">User Browser</text>
+    <text x="600" y="205" text-anchor="middle" class="text">Pastes booking confirmation email</text>
+  </g>
+
+  <!-- Arrow down -->
+  <line x1="600" y1="220" x2="600" y2="250" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- Layer 2: Frontend -->
+  <g id="layer2">
+    <text x="600" y="270" text-anchor="middle" class="label" fill="#333">LAYER 2: FRONTEND (Vercel)</text>
+    
+    <!-- Frontend App -->
+    <rect x="200" y="280" width="320" height="100" fill="#F3E5F5" stroke="#7B1FA2" stroke-width="2" rx="5"/>
+    <text x="360" y="305" text-anchor="middle" class="label">Travelway Frontend</text>
+    <text x="360" y="325" text-anchor="middle" class="text">Next.js React Application</text>
+    <text x="360" y="340" text-anchor="middle" class="text">- Booking Input Form</text>
+    <text x="360" y="355" text-anchor="middle" class="text">- Event Timeline - Context Guidance</text>
+    <text x="360" y="370" text-anchor="middle" class="text">- Weather Widget</text>
+
+    <!-- Weather API -->
+    <rect x="680" y="280" width="280" height="100" fill="#FFF3E0" stroke="#E65100" stroke-width="2" rx="5"/>
+    <text x="820" y="305" text-anchor="middle" class="label">External: Open-Meteo</text>
+    <text x="820" y="325" text-anchor="middle" class="text">Weather API</text>
+    <text x="820" y="340" text-anchor="middle" class="text">- Real-time conditions</text>
+    <text x="820" y="355" text-anchor="middle" class="text">- Destination weather data</text>
+    <text x="820" y="370" text-anchor="middle" class="text">- No API key required</text>
+
+    <!-- Arrow from Frontend to Weather -->
+    <line x1="520" y1="330" x2="680" y2="330" stroke="#333" stroke-width="2"/>
+    <text x="600" y="320" text-anchor="middle" class="text" fill="#E65100">Weather Data</text>
+  </g>
+
+  <!-- Arrow down -->
+  <line x1="600" y1="380" x2="600" y2="410" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- Layer 3: Backend and AI -->
+  <g id="layer3">
+    <text x="600" y="430" text-anchor="middle" class="label" fill="#333">LAYER 3: BACKEND and AI</text>
+
+    <!-- API -->
+    <rect x="200" y="440" width="280" height="100" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2" rx="5"/>
+    <text x="340" y="465" text-anchor="middle" class="label">Next.js API Routes</text>
+    <text x="340" y="485" text-anchor="middle" class="text">POST /api/parse</text>
+    <text x="340" y="500" text-anchor="middle" class="text">GET /api/trips</text>
+    <text x="340" y="515" text-anchor="middle" class="text">Serverless Functions</text>
+    <text x="340" y="530" text-anchor="middle" class="text">Auto-scaling</text>
+
+    <!-- Bidirectional arrow -->
+    <line x1="480" y1="490" x2="620" y2="490" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <line x1="620" y1="500" x2="480" y2="500" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+    <!-- Gemini AI -->
+    <rect x="620" y="440" width="280" height="100" fill="#FCE4EC" stroke="#C2185B" stroke-width="2" rx="5"/>
+    <text x="760" y="465" text-anchor="middle" class="label">Google Gemini AI</text>
+    <text x="760" y="485" text-anchor="middle" class="text">Vercel AI SDK Integration</text>
+    <text x="760" y="500" text-anchor="middle" class="text">Parse messy booking text</text>
+    <text x="760" y="515" text-anchor="middle" class="text">Extract structured data</text>
+    <text x="760" y="530" text-anchor="middle" class="text">Flights, hotels, activities</text>
+  </g>
+
+  <!-- Arrow down -->
+  <line x1="600" y1="540" x2="600" y2="570" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- Layer 4: Database -->
+  <g id="layer4">
+    <text x="600" y="590" text-anchor="middle" class="label" fill="#333">LAYER 4: PRIMARY DATA STORAGE (AWS Aurora PostgreSQL)</text>
+
+    <!-- Database container -->
+    <rect x="150" y="610" width="900" height="150" fill="#E0F2F1" stroke="#00796B" stroke-width="3" rx="5"/>
+
+    <!-- Database Title -->
+    <text x="600" y="635" text-anchor="middle" class="label" fill="#00796B">Aurora PostgreSQL Database</text>
+    <text x="600" y="655" text-anchor="middle" class="text">Encrypted | Multi-AZ | IAM Authentication</text>
+
+    <!-- USERS Table -->
+    <rect x="170" y="665" width="200" height="80" fill="#FFFFFF" stroke="#00796B" stroke-width="2" rx="3"/>
+    <text x="270" y="685" text-anchor="middle" class="label">USERS Table</text>
+    <text x="270" y="703" text-anchor="middle" class="text" font-size="11">user_id, email</text>
+    <text x="270" y="720" text-anchor="middle" class="text" font-size="11">password_hash, created_at</text>
+    <text x="270" y="735" text-anchor="middle" class="text" font-size="11">Indexed on user_id, email</text>
+
+    <!-- TRIPS Table -->
+    <rect x="400" y="665" width="200" height="80" fill="#FFFFFF" stroke="#00796B" stroke-width="2" rx="3"/>
+    <text x="500" y="685" text-anchor="middle" class="label">TRIPS Table</text>
+    <text x="500" y="703" text-anchor="middle" class="text" font-size="11">trip_id, user_id</text>
+    <text x="500" y="720" text-anchor="middle" class="text" font-size="11">destination, title</text>
+    <text x="500" y="735" text-anchor="middle" class="text" font-size="11">raw_booking_text</text>
+
+    <!-- EVENTS Table -->
+    <rect x="630" y="665" width="200" height="80" fill="#FFFFFF" stroke="#00796B" stroke-width="2" rx="3"/>
+    <text x="730" y="685" text-anchor="middle" class="label">EVENTS Table</text>
+    <text x="730" y="703" text-anchor="middle" class="text" font-size="11">event_id, trip_id</text>
+    <text x="730" y="720" text-anchor="middle" class="text" font-size="11">type, flight_number</text>
+    <text x="730" y="735" text-anchor="middle" class="text" font-size="11">departure_time, hotel_name</text>
+
+    <!-- Additional info -->
+    <text x="850" y="710" class="text" font-size="10">check_in_time</text>
+    <text x="850" y="725" class="text" font-size="10">hotel_address</text>
+    <text x="850" y="740" class="text" font-size="10">activity_details</text>
+  </g>
+
+  <!-- Arrow up (Retrieval) -->
+  <line x1="600" y1="610" x2="600" y2="570" stroke="#27AE60" stroke-width="2" marker-end="url(#arrowhead-green)"/>
+  <text x="610" y="590" class="text" fill="#27AE60">Data Retrieval</text>
+
+  <!-- Complete Data Flow -->
+  <g id="dataflow">
+    <text x="100" y="820" class="label" fill="#333">Complete Data Flow:</text>
+    <text x="100" y="845" class="text">Step 1: User input arrives at Next.js API | Step 2: Gemini parses and structures data | Step 3: Data stored in Aurora PostgreSQL | Step 4: Frontend retrieves and displays timeline | Step 5: Weather API provides conditions</text>
+  </g>
+
+  <!-- Arrow markers -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#333"/>
+    </marker>
+    <marker id="arrowhead-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#27AE60"/>
+    </marker>
+  </defs>
+</svg>
