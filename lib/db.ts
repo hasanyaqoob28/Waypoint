@@ -1,38 +1,33 @@
 import { Pool, ClientBase } from 'pg'
+import { Signer } from '@aws-sdk/rds-signer'
+import { awsCredentialsProvider } from '@vercel/oidc-aws-credentials-provider'
 import { attachDatabasePool } from '@vercel/functions'
 
-// Initialize pool - connect to postgres db first to create travelway db
-const adminPool = new Pool({
-  host: process.env.PGHOST,
-  database: 'postgres',
-  port: 5432,
-  user: process.env.PGUSER || 'postgres',
-  password: process.env.PGPASSWORD,
-  ssl: { rejectUnauthorized: false },
-  max: 5,
-})
+let signer: Signer | null = null
 
-// Create travelway database if it doesn't exist
-async function ensureDatabase() {
-  try {
-    await adminPool.query(`CREATE DATABASE travelway;`)
-    console.log('[v0] Database travelway created')
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('already exists')) {
-      console.log('[v0] Database travelway already exists')
-    } else {
-      console.error('[v0] Error creating database:', error)
-    }
+function initializeSigner() {
+  if (!signer && process.env.AWS_ROLE_ARN) {
+    signer = new Signer({
+      credentials: awsCredentialsProvider({
+        roleArn: process.env.AWS_ROLE_ARN,
+        audience: 'sts.amazonaws.com',
+        region: process.env.AWS_REGION,
+      }),
+      region: process.env.AWS_REGION,
+      hostname: process.env.PGHOST,
+      username: process.env.PGUSER || 'postgres',
+      port: 5432,
+    })
   }
+  return signer
 }
 
-// Main pool for queries
 const pool = new Pool({
   host: process.env.PGHOST,
   database: 'travelway',
   port: 5432,
   user: process.env.PGUSER || 'postgres',
-  password: process.env.PGPASSWORD,
+  password: () => initializeSigner()?.getAuthToken() || process.env.PGPASSWORD || '',
   ssl: { rejectUnauthorized: false },
   max: 20,
 })
@@ -40,7 +35,6 @@ attachDatabasePool(pool)
 
 // Auto-create schema on startup if tables don't exist
 async function initializeSchema() {
-  await ensureDatabase()
   try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
