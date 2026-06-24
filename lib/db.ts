@@ -20,7 +20,7 @@ const pool = new Pool({
   port: 5432,
   user: process.env.PGUSER || 'postgres',
   password: getPassword(),
-  ssl: { rejectUnauthorized: false },
+  ssl: false,
   max: 20,
 })
 attachDatabasePool(pool)
