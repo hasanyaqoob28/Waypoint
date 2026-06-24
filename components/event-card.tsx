@@ -14,6 +14,7 @@ import {
   Hash,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { CountdownTimer } from "@/components/countdown-timer"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import type { ItineraryEvent } from "@/lib/types"
@@ -104,7 +105,7 @@ export function EventCard({ event }: { event: ItineraryEvent }) {
 function FlightBody({ flight }: { flight: NonNullable<ItineraryEvent["flight"]> }) {
   return (
     <div className="mt-4">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <p className="font-mono text-xl font-bold tracking-tight text-foreground">
             {flight.departureAirport || "—"}
@@ -116,6 +117,11 @@ function FlightBody({ flight }: { flight: NonNullable<ItineraryEvent["flight"]> 
             <p className="mt-1 text-[11px] font-medium text-foreground/80">
               {flight.departureTimeLocal}
             </p>
+          ) : null}
+          {flight.departureTime ? (
+            <div className="mt-2">
+              <CountdownTimer departureTime={flight.departureTime} flightNumber={flight.flightNumber} />
+            </div>
           ) : null}
         </div>
 
