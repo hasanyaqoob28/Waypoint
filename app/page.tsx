@@ -1,7 +1,7 @@
 import { Dashboard } from "@/components/dashboard"
 import { Footer } from "@/components/footer"
 
-const LINKEDIN_URL = "https://linkedin.com/in/hasanyaqoob"
+const LINKEDIN_URL = "https://www.linkedin.com/in/hassan-yaqoob"
 
 export default function Home() {
   return (
