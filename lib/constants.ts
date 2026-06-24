@@ -1,15 +1,25 @@
 export const DEMO_USER_ID = "1"
 
-export const SAMPLE_CONFIRMATION = `Flight Confirmation — Japan Airlines JL6
-Depart: New York (JFK) Terminal 1, Gate 4 at 12:15 PM local
-Arrive: Tokyo Haneda (HND) at 3:25 PM local time
+export const SAMPLE_CONFIRMATION = `Flight Confirmation
+Japan Airlines JL6
+From: New York JFK Terminal 1
+To: Tokyo HND
+Depart: September 15, 2024 at 12:15 PM
+Arrive: September 16, 2024 at 3:25 PM JST
+Gate: 4
+Seat: 12A
 Status: On Time
 
-Hotel Voucher
+Hotel Reservation
 Shibuya Stream Excel Hotel Tokyu
-3-21-3 Shibuya, Shibuya City, Tokyo
-Confirmation code: X992-H8B
-Standard room, check-in window opens at 7:00 PM
+3-21-3 Shibuya, Shibuya City, Tokyo, Japan
+Check-in: 3:00 PM
+Check-out: 11:00 AM
+Confirmation: X992-H8B
+Room Type: Standard Double
 
-Reservation
-Dinner at Narisawa, 8:30 PM, 2-6-15 Minami-Aoyama, Minato City`
+Activity Booking
+Dinner at Narisawa Restaurant
+8:30 PM - 10:00 PM
+2-6-15 Minami-Aoyama, Minato Ward, Tokyo
+Seats: 2 people`
