@@ -24,6 +24,22 @@ export function Dashboard() {
   const { data, isLoading } = useSWR<{ trips: Trip[] }>(TRIPS_KEY, fetcher)
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
+  // Persist selected trip ID to localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("selectedTripId")
+      if (saved) {
+        setSelectedId(saved)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (selectedId && typeof window !== "undefined") {
+      localStorage.setItem("selectedTripId", selectedId)
+    }
+  }, [selectedId])
+
   const trips = useMemo(() => data?.trips ?? [], [data])
   const activeTrip = useMemo(
     () => trips.find((t) => t.tripId === selectedId) ?? trips[0] ?? null,
