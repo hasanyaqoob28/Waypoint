@@ -22,22 +22,35 @@ const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 export function Dashboard() {
   const { data, isLoading } = useSWR<{ trips: Trip[] }>(TRIPS_KEY, fetcher)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-
-  // Persist selected trip ID to localStorage
-  useEffect(() => {
+  
+  // Initialize selectedId from localStorage
+  const [selectedId, setSelectedId] = useState<string | null>(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("selectedTripId")
-      if (saved) {
-        setSelectedId(saved)
-      }
+      return localStorage.getItem("selectedTripId")
     }
-  }, [])
+    return null
+  })
 
+  // Persist selected trip ID to localStorage whenever it changes
   useEffect(() => {
     if (selectedId && typeof window !== "undefined") {
       localStorage.setItem("selectedTripId", selectedId)
     }
+  }, [selectedId])
+
+  // Handle tab visibility changes - restore state when tab becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (typeof window !== "undefined" && document.visibilityState === "visible") {
+        const saved = localStorage.getItem("selectedTripId")
+        if (saved && saved !== selectedId) {
+          setSelectedId(saved)
+        }
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange)
   }, [selectedId])
 
   const trips = useMemo(() => data?.trips ?? [], [data])
