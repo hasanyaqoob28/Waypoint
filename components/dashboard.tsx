@@ -11,6 +11,7 @@ import { EventCard } from "@/components/event-card"
 import { LivePreview } from "@/components/live-preview"
 import { EventTimeline, getCurrentEventIndex } from "@/components/event-timeline"
 import { ContextMoment } from "@/components/context-moment"
+import { PDFExport } from "@/components/pdf-export"
 import { DEMO_USER_ID } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import type { Trip, ItineraryEvent } from "@/lib/types"
@@ -234,15 +235,18 @@ function ActiveTrip({
             {trip.title}
           </h2>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onDelete}
-          aria-label="Delete trip"
-          className="text-muted-foreground hover:text-destructive"
-        >
-          <Trash2 className="size-4" />
-        </Button>
+        <div className="flex items-center gap-2">
+          <PDFExport trip={trip} events={trip.itinerary} />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onDelete}
+            aria-label="Delete trip"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+          >
+            <Trash2 className="size-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Event timeline — shows all events with current highlighted */}
