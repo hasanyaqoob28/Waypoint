@@ -81,14 +81,19 @@ export async function POST(request: Request) {
     // Ensure user exists before creating trip
     const parsedUserId = parseInt(userId) || 1
     try {
-      await query(
-        `INSERT INTO users (id, created_at, updated_at) VALUES ($1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) 
-         ON CONFLICT (id) DO NOTHING`,
-        [parsedUserId]
-      )
+      // Check if user exists
+      const userCheck = await query('SELECT id FROM users WHERE id = $1', [parsedUserId])
+      
+      // If user doesn't exist, create them
+      if (userCheck.rows.length === 0) {
+        await query(
+          `INSERT INTO users (id, created_at, updated_at) VALUES ($1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+          [parsedUserId]
+        )
+      }
     } catch (e) {
-      // User creation might fail due to constraints, but that's OK
-      console.log("[v0] User creation note:", e instanceof Error ? e.message : e)
+      console.error("[v0] User creation error:", e instanceof Error ? e.message : e)
+      // Continue anyway - the trip insert will fail if user truly doesn't exist
     }
 
     // Save trip to Aurora PostgreSQL
