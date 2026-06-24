@@ -1,33 +1,12 @@
 import { Pool, ClientBase } from 'pg'
-import { Signer } from '@aws-sdk/rds-signer'
-import { awsCredentialsProvider } from '@vercel/oidc-aws-credentials-provider'
 import { attachDatabasePool } from '@vercel/functions'
-
-let signer: Signer | null = null
-
-function initializeSigner() {
-  if (!signer && process.env.AWS_ROLE_ARN) {
-    signer = new Signer({
-      credentials: awsCredentialsProvider({
-        roleArn: process.env.AWS_ROLE_ARN,
-        audience: 'sts.amazonaws.com',
-        region: process.env.AWS_REGION,
-      }),
-      region: process.env.AWS_REGION,
-      hostname: process.env.PGHOST,
-      username: process.env.PGUSER || 'postgres',
-      port: 5432,
-    })
-  }
-  return signer
-}
 
 const pool = new Pool({
   host: process.env.PGHOST,
   database: 'travelway',
   port: 5432,
   user: process.env.PGUSER || 'postgres',
-  password: () => initializeSigner()?.getAuthToken() || process.env.PGPASSWORD || '',
+  password: process.env.PGPASSWORD,
   ssl: { rejectUnauthorized: false },
   max: 20,
 })
