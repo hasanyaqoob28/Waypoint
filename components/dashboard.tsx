@@ -157,6 +157,7 @@ export function Dashboard() {
             </div>
           ) : activeTrip ? (
             <ActiveTrip
+              key={activeTrip.tripId}
               trip={activeTrip}
               onDelete={() => handleDelete(activeTrip)}
             />
@@ -187,7 +188,7 @@ function ActiveTrip({
     updateAutoIndex()
     const interval = setInterval(updateAutoIndex, 60000)
     return () => clearInterval(interval)
-  }, [trip])
+  }, [trip.tripId])
 
   // Use auto-detected index if available, otherwise manual selection
   const eventIndex = autoIndex !== null ? autoIndex : selectedEventIndex
