@@ -1,12 +1,40 @@
 import { Pool, ClientBase } from 'pg'
+import { Signer } from '@aws-sdk/rds-signer'
+import { awsCredentialsProvider } from '@vercel/oidc-aws-credentials-provider'
 import { attachDatabasePool } from '@vercel/functions'
+
+let signer: Signer | null = null
+
+function getSigner(): Signer {
+  if (!signer) {
+    signer = new Signer({
+      credentials: awsCredentialsProvider({
+        roleArn: process.env.AWS_ROLE_ARN!,
+        audience: 'sts.amazonaws.com',
+        region: process.env.AWS_REGION || 'us-east-1',
+      }),
+      region: process.env.AWS_REGION || 'us-east-1',
+      hostname: process.env.PGHOST!,
+      username: process.env.PGUSER || 'postgres',
+      port: 5432,
+    })
+  }
+  return signer
+}
 
 const pool = new Pool({
   host: process.env.PGHOST,
   database: 'travelway',
   port: 5432,
   user: process.env.PGUSER || 'postgres',
-  password: process.env.PGPASSWORD,
+  password: async () => {
+    try {
+      return await getSigner().getAuthToken()
+    } catch (error) {
+      console.error('[v0] IAM token generation failed:', error instanceof Error ? error.message : error)
+      throw error
+    }
+  },
   ssl: { rejectUnauthorized: false },
   max: 20,
 })
