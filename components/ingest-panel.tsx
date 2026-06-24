@@ -13,7 +13,20 @@ export function IngestPanel({ onIngested }: { onIngested: (trip: Trip) => void }
   const [rawText, setRawText] = useState("")
   const [loading, setLoading] = useState(false)
   const [typing, setTyping] = useState(false)
+  const [loadingDemo, setLoadingDemo] = useState(false)
   const typingRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  async function handleLoadDemo() {
+    setLoadingDemo(true)
+    try {
+      await fetch('/api/seed-demo', { method: 'POST' })
+      toast.success('Demo trips loaded! Refresh to see them.')
+    } catch (error) {
+      toast.error('Failed to load demo trips')
+    } finally {
+      setLoadingDemo(false)
+    }
+  }
 
   function handleUseSample() {
     if (loading || typing) return
@@ -90,30 +103,48 @@ export function IngestPanel({ onIngested }: { onIngested: (trip: Trip) => void }
         disabled={loading || typing}
       />
 
-      <div className="mt-3 flex items-center gap-2">
+      <div className="mt-3 space-y-2">
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleParse}
+            disabled={loading || typing || !rawText.trim()}
+            className="flex-1"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Building itinerary…
+              </>
+            ) : (
+              <>
+                <Wand2 className="size-4" />
+                Parse with AI
+              </>
+            )}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleUseSample}
+            disabled={loading || typing}
+          >
+            {typing ? "Typing…" : "Use sample"}
+          </Button>
+        </div>
         <Button
-          onClick={handleParse}
-          disabled={loading || typing || !rawText.trim()}
-          className="flex-1"
+          variant="outline"
+          onClick={handleLoadDemo}
+          disabled={loadingDemo}
+          className="w-full"
+          size="sm"
         >
-          {loading ? (
+          {loadingDemo ? (
             <>
-              <Loader2 className="size-4 animate-spin" />
-              Building itinerary…
+              <Loader2 className="size-3 animate-spin" />
+              Loading demo...
             </>
           ) : (
-            <>
-              <Wand2 className="size-4" />
-              Parse with AI
-            </>
+            "View demo trips"
           )}
-        </Button>
-        <Button
-          variant="secondary"
-          onClick={handleUseSample}
-          disabled={loading || typing}
-        >
-          {typing ? "Typing…" : "Use sample"}
         </Button>
       </div>
     </section>
