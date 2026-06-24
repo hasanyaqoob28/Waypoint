@@ -78,12 +78,25 @@ export async function POST(request: Request) {
       parsedBy = "fallback"
     }
 
+    // Ensure user exists before creating trip
+    const parsedUserId = parseInt(userId) || 1
+    try {
+      await query(
+        `INSERT INTO users (id, created_at, updated_at) VALUES ($1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) 
+         ON CONFLICT (id) DO NOTHING`,
+        [parsedUserId]
+      )
+    } catch (e) {
+      // User creation might fail due to constraints, but that's OK
+      console.log("[v0] User creation note:", e instanceof Error ? e.message : e)
+    }
+
     // Save trip to Aurora PostgreSQL
     const tripResult = await query(
       `INSERT INTO trips (user_id, destination, title, raw_booking_text, created_at, updated_at)
        VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
        RETURNING id, user_id, destination, title, raw_booking_text, created_at, updated_at`,
-      [parseInt(userId) || 1, destination, title, rawText]
+      [parsedUserId, destination, title, rawText]
     )
 
     const tripId = tripResult.rows[0]?.id
