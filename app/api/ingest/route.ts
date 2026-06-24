@@ -98,6 +98,7 @@ export async function POST(request: Request) {
     }
 
     // Save trip to Aurora PostgreSQL
+    console.log("[v0] Attempting insert for user:", parsedUserId)
     const tripResult = await query(
       `INSERT INTO trips (user_id, destination, title, raw_booking_text, created_at, updated_at)
        VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
@@ -105,7 +106,9 @@ export async function POST(request: Request) {
       [parsedUserId, destination, title, rawText]
     )
 
+    console.log("[v0] Insert result rows:", tripResult.rows.length)
     const tripId = tripResult.rows[0]?.id
+    console.log("[v0] Trip id:", tripId)
 
     const trip = {
       userId,
