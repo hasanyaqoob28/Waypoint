@@ -31,21 +31,18 @@ const pool = new Pool({
   database: 'travelway',
   port: 5432,
   user: process.env.PGUSER || 'postgres',
-  password: async () => {
+  password: () => {
     const s = initializeSigner()
     if (s && process.env.AWS_ROLE_ARN) {
       try {
-        console.log('[v0] Attempting IAM token generation for user:', process.env.PGUSER)
-        const token = await s.getAuthToken()
-        console.log('[v0] IAM token generated successfully, length:', token.length)
-        return token
+        // getAuthToken() returns a Promise, but pg-node expects sync or Promise-returning function
+        // Return the promise and pg-node will await it
+        return s.getAuthToken() as any
       } catch (e) {
-        console.error('[v0] IAM token generation failed:', e instanceof Error ? e.message : String(e))
-        console.log('[v0] Falling back to password auth')
+        console.error('[v0] Signer error:', e)
         return process.env.PGPASSWORD || ''
       }
     }
-    console.log('[v0] No IAM role, using password auth')
     return process.env.PGPASSWORD || ''
   },
   ssl: { rejectUnauthorized: false },
