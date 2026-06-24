@@ -6,21 +6,28 @@ import { attachDatabasePool } from '@vercel/functions'
 let signer: Signer | null = null
 
 function initializeSigner() {
-  if (!signer && process.env.AWS_ROLE_ARN) {
-    try {
-      signer = new Signer({
-        credentials: awsCredentialsProvider({
-          roleArn: process.env.AWS_ROLE_ARN,
-          audience: 'sts.amazonaws.com',
-          region: process.env.AWS_REGION,
-        }),
-        region: process.env.AWS_REGION,
-        hostname: process.env.PGHOST,
-        username: process.env.PGUSER || 'postgres',
-        port: 5432,
-      })
-    } catch (e) {
-      console.log('[v0] IAM signer init error, falling back to password')
+  if (!signer) {
+    console.log('[v0] Signer check - AWS_ROLE_ARN:', !!process.env.AWS_ROLE_ARN)
+    if (process.env.AWS_ROLE_ARN) {
+      try {
+        console.log('[v0] Initializing Signer with roleArn:', process.env.AWS_ROLE_ARN)
+        signer = new Signer({
+          credentials: awsCredentialsProvider({
+            roleArn: process.env.AWS_ROLE_ARN,
+            audience: 'sts.amazonaws.com',
+            region: process.env.AWS_REGION || 'us-east-1',
+          }),
+          region: process.env.AWS_REGION || 'us-east-1',
+          hostname: process.env.PGHOST,
+          username: process.env.PGUSER || 'postgres',
+          port: 5432,
+        })
+        console.log('[v0] Signer initialized successfully')
+      } catch (e) {
+        console.error('[v0] Signer init error:', e instanceof Error ? e.message : e)
+      }
+    } else {
+      console.log('[v0] No AWS_ROLE_ARN, using password auth')
     }
   }
   return signer
