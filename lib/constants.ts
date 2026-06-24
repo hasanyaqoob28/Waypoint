@@ -1,4 +1,4 @@
-export const DEMO_USER_ID = "user_demo"
+export const DEMO_USER_ID = "1"
 
 export const SAMPLE_CONFIRMATION = `Flight Confirmation — Japan Airlines JL6
 Depart: New York (JFK) Terminal 1, Gate 4 at 12:15 PM local
