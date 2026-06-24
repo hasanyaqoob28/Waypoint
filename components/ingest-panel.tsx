@@ -9,7 +9,7 @@ import { DEMO_USER_ID, SAMPLE_CONFIRMATION } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import type { Trip } from "@/lib/types"
 
-export function IngestPanel({ onIngested }: { onIngested: (trip: Trip) => void }) {
+export function IngestPanel({ onIngested, onRefresh }: { onIngested: (trip: Trip) => void; onRefresh?: () => void }) {
   const [rawText, setRawText] = useState("")
   const [loading, setLoading] = useState(false)
   const [typing, setTyping] = useState(false)
@@ -20,7 +20,8 @@ export function IngestPanel({ onIngested }: { onIngested: (trip: Trip) => void }
     setLoadingDemo(true)
     try {
       await fetch('/api/seed-demo', { method: 'POST' })
-      toast.success('Demo trips loaded! Refresh to see them.')
+      toast.success('Demo trips loaded!')
+      onRefresh?.()
     } catch (error) {
       toast.error('Failed to load demo trips')
     } finally {

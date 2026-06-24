@@ -164,7 +164,7 @@ export function Dashboard() {
       <div className="grid gap-5 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] lg:items-start lg:gap-8">
         {/* Left panel: the input */}
         <div className="space-y-5 lg:sticky lg:top-6">
-          <IngestPanel onIngested={handleIngested} />
+          <IngestPanel onIngested={handleIngested} onRefresh={() => mutate(TRIPS_KEY)} />
 
           {isLoading ? (
             <Skeleton className="h-32 w-full rounded-2xl" />

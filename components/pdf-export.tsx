@@ -37,8 +37,9 @@ export function PDFExport({ trip, events }: PDFExportProps) {
         <div style="margin-bottom: 30px; border-top: 1px solid #ddd; padding-top: 20px;">
           <h2 style="font-size: 18px; margin: 0 0 15px 0; color: #1a1a1a;">Trip Details</h2>
           <p style="margin: 5px 0; font-size: 13px; color: #666;">
-            <strong>Booking Details:</strong><br/>
-            ${trip.raw_booking_text}
+            <strong>Destination:</strong> ${trip.destination || 'N/A'}<br/>
+            <strong>Status:</strong> ${trip.status || 'Active'}<br/>
+            <strong>Created:</strong> ${new Date(trip.syncedAt).toLocaleDateString()}
           </p>
         </div>
 
