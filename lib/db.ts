@@ -1,57 +1,12 @@
 import { Pool, ClientBase } from 'pg'
-import { Signer } from '@aws-sdk/rds-signer'
-import { awsCredentialsProvider } from '@vercel/oidc-aws-credentials-provider'
 import { attachDatabasePool } from '@vercel/functions'
-
-let signer: Signer | null = null
-
-function initializeSigner() {
-  if (!signer) {
-    console.log('[v0] Signer check - AWS_ROLE_ARN:', !!process.env.AWS_ROLE_ARN)
-    if (process.env.AWS_ROLE_ARN) {
-      try {
-        console.log('[v0] Initializing Signer with roleArn:', process.env.AWS_ROLE_ARN)
-        signer = new Signer({
-          credentials: awsCredentialsProvider({
-            roleArn: process.env.AWS_ROLE_ARN,
-            audience: 'sts.amazonaws.com',
-            region: process.env.AWS_REGION || 'us-east-1',
-          }),
-          region: process.env.AWS_REGION || 'us-east-1',
-          hostname: process.env.PGHOST,
-          username: process.env.PGUSER || 'postgres',
-          port: 5432,
-        })
-        console.log('[v0] Signer initialized successfully')
-      } catch (e) {
-        console.error('[v0] Signer init error:', e instanceof Error ? e.message : e)
-      }
-    } else {
-      console.log('[v0] No AWS_ROLE_ARN, using password auth')
-    }
-  }
-  return signer
-}
 
 const pool = new Pool({
   host: process.env.PGHOST,
   database: 'travelway',
   port: 5432,
   user: process.env.PGUSER || 'postgres',
-  password: () => {
-    const s = initializeSigner()
-    if (s && process.env.AWS_ROLE_ARN) {
-      try {
-        // getAuthToken() returns a Promise, but pg-node expects sync or Promise-returning function
-        // Return the promise and pg-node will await it
-        return s.getAuthToken() as any
-      } catch (e) {
-        console.error('[v0] Signer error:', e)
-        return process.env.PGPASSWORD || ''
-      }
-    }
-    return process.env.PGPASSWORD || ''
-  },
+  password: process.env.PGPASSWORD,
   ssl: { rejectUnauthorized: false },
   max: 20,
 })
