@@ -2,17 +2,17 @@ import { query } from '@/lib/db'
 
 export async function POST() {
   try {
-    // Create demo user if not exists
+    // Create demo user if not exists (using DEMO_USER_ID = 1)
     await query(
       `INSERT INTO users (id, email, password_hash, created_at, updated_at) 
-       VALUES (99999, 'demo@travelway.local', 'placeholder_hash', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+       VALUES (1, 'demo@travelway.local', 'placeholder_hash', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
        ON CONFLICT (id) DO NOTHING`
     )
 
     // Demo trip 1: Paris
     const trip1Result = await query(
       `INSERT INTO trips (user_id, destination, title, raw_booking_text, created_at, updated_at)
-       VALUES (99999, 'Paris', 'Summer Getaway to Paris', 
+       VALUES (1, 'Paris', 'Summer Getaway to Paris', 
        'United flight UA900 from JFK to CDG departing June 15 at 7pm arriving June 16 at 8am. Seat 12A. Confirmation UN900. Le Marais Hotel checking in June 16 checking out June 22.',
        CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
        RETURNING id`
@@ -33,7 +33,7 @@ export async function POST() {
     // Demo trip 2: LA
     const trip2Result = await query(
       `INSERT INTO trips (user_id, destination, title, raw_booking_text, created_at, updated_at)
-       VALUES (99999, 'Los Angeles', 'Beach Vacation in LA',
+       VALUES (1, 'Los Angeles', 'Beach Vacation in LA',
        'American flight AA200 from Boston BOS to Los Angeles LAX departing July 1 at 10am arriving July 1 at 1pm. Seat 14B. Confirmation AA200. Santa Monica Hotel checking in July 1 checking out July 8.',
        CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
        RETURNING id`
