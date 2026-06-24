@@ -9,9 +9,14 @@ export async function GET(request: Request) {
       return Response.json({ error: 'userId required' }, { status: 400 })
     }
 
+    const parsedId = parseInt(userId, 10)
+    if (isNaN(parsedId)) {
+      return Response.json({ error: 'Invalid userId format' }, { status: 400 })
+    }
+
     const result = await query(
       'SELECT id, user_id, destination, title, raw_booking_text, created_at FROM trips WHERE user_id = $1 ORDER BY created_at DESC',
-      [parseInt(userId)]
+      [parsedId]
     )
     return Response.json(result.rows)
   } catch (error) {
