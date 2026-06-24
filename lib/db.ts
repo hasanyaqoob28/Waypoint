@@ -1,12 +1,25 @@
 import { Pool, ClientBase } from 'pg'
 import { attachDatabasePool } from '@vercel/functions'
 
+// Parse password - handle both plain string and JSON format from Secrets Manager
+function getPassword(): string {
+  const pwd = process.env.PGPASSWORD || ''
+  try {
+    // Try parsing as JSON first (Secrets Manager format)
+    const parsed = JSON.parse(pwd)
+    return parsed.password || pwd
+  } catch {
+    // Fall back to plain string
+    return pwd
+  }
+}
+
 const pool = new Pool({
   host: process.env.PGHOST,
   database: 'travelway',
   port: 5432,
   user: process.env.PGUSER || 'postgres',
-  password: process.env.PGPASSWORD,
+  password: getPassword(),
   ssl: { rejectUnauthorized: false },
   max: 20,
 })
