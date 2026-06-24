@@ -11,7 +11,6 @@ import { EventCard } from "@/components/event-card"
 import { LivePreview } from "@/components/live-preview"
 import { EventTimeline, getCurrentEventIndex } from "@/components/event-timeline"
 import { ContextMoment } from "@/components/context-moment"
-import { PDFExport } from "@/components/pdf-export"
 import { DEMO_USER_ID } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import type { Trip, ItineraryEvent } from "@/lib/types"
@@ -164,7 +163,7 @@ export function Dashboard() {
       <div className="grid gap-5 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] lg:items-start lg:gap-8">
         {/* Left panel: the input */}
         <div className="space-y-5 lg:sticky lg:top-6">
-          <IngestPanel onIngested={handleIngested} onRefresh={() => mutate(TRIPS_KEY)} />
+          <IngestPanel onIngested={handleIngested} />
 
           {isLoading ? (
             <Skeleton className="h-32 w-full rounded-2xl" />
@@ -235,18 +234,15 @@ function ActiveTrip({
             {trip.title}
           </h2>
         </div>
-        <div className="flex items-center gap-2">
-          <PDFExport trip={trip} events={trip.itinerary} />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onDelete}
-            aria-label="Delete trip"
-            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-          >
-            <Trash2 className="size-4" />
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onDelete}
+          aria-label="Delete trip"
+          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+        >
+          <Trash2 className="size-4" />
+        </Button>
       </div>
 
       {/* Event timeline — shows all events with current highlighted */}
