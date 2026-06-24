@@ -1,4 +1,4 @@
-import { Linkedin } from "lucide-react"
+import { ExternalLink } from "lucide-react"
 
 export function Footer({ linkedinUrl }: { linkedinUrl: string }) {
   return (
@@ -12,8 +12,8 @@ export function Footer({ linkedinUrl }: { linkedinUrl: string }) {
           className="inline-flex items-center gap-1 transition-colors hover:text-foreground"
           aria-label="LinkedIn Profile"
         >
-          <Linkedin className="size-3.5" />
-          <span className="hidden sm:inline">Connect on LinkedIn</span>
+          <ExternalLink className="size-3.5" />
+          <span className="hidden sm:inline">LinkedIn</span>
         </a>
       </div>
     </footer>
