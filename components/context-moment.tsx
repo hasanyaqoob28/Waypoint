@@ -48,7 +48,7 @@ function FlightGuidance({
   const departureTime = flight.departureTimeLocal.split(" ")[0] // Just HH:MM
   
   return (
-    <Banner icon={Plane} kicker="Your flight" tone="primary">
+    <Banner icon={Plane} kicker="Your flight" tone="default">
       <div className="space-y-3">
         <p className="text-sm font-semibold text-primary-foreground text-pretty">
           {flight.flightNumber} departs at {departureTime} from{" "}
@@ -203,10 +203,10 @@ function Banner({
 }) {
   const toneClasses =
     tone === "primary"
-      ? "bg-primary border-primary/40"
+      ? "bg-card border-primary/40 border-l-4 border-l-primary"
       : tone === "accent"
         ? "bg-accent/10 border-accent/25"
-        : "bg-card border-border"
+        : "bg-card border-border/50 border-l-4 border-l-primary"
 
   const kickerClasses =
     tone === "primary"
@@ -217,7 +217,7 @@ function Banner({
 
   const iconWrap =
     tone === "primary"
-      ? "bg-background/20 text-primary-foreground"
+      ? "bg-primary/15 text-primary"
       : tone === "accent"
         ? "bg-accent/15 text-accent"
         : "bg-primary/12 text-primary"

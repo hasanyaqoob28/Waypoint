@@ -239,7 +239,7 @@ function ActiveTrip({
           size="icon"
           onClick={onDelete}
           aria-label="Delete trip"
-          className="text-muted-foreground hover:text-destructive"
+          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
         >
           <Trash2 className="size-4" />
         </Button>
