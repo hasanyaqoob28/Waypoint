@@ -117,34 +117,26 @@ export function Dashboard() {
             className="pointer-events-none absolute -right-16 -top-20 size-64 rounded-full bg-primary/20 blur-3xl"
           />
           {/* Brand bar — always visible */}
-          <div className="relative flex items-start gap-x-4">
+          <div className="relative flex items-center gap-x-4">
             <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/30">
               <Navigation className="size-5" />
             </span>
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold tracking-tight text-foreground lg:text-2xl">
-                  Travelway
-                </h1>
-                <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent lg:hidden">
-                  <span className="relative flex size-1.5">
-                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-70" />
-                    <span className="relative inline-flex size-1.5 rounded-full bg-accent" />
-                  </span>
-                  Live
-                </span>
-              </div>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-xl font-bold tracking-tight text-foreground lg:text-2xl">
+                Travelway
+              </h1>
               <p className="text-[12px] text-muted-foreground lg:text-sm">
                 Your whole trip, in one calm timeline
               </p>
-              <span className="hidden items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-medium text-accent lg:inline-flex">
-                <span className="relative flex size-2">
-                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-70" />
-                  <span className="relative inline-flex size-2 rounded-full bg-accent" />
-                </span>
-                Live sync
-              </span>
             </div>
+            <span className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent lg:px-3 lg:py-1 lg:text-[11px]">
+              <span className="relative flex size-1.5 lg:size-2">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-70" />
+                <span className="relative inline-flex size-1.5 rounded-full bg-accent lg:size-2" />
+              </span>
+              <span className="lg:hidden">Live</span>
+              <span className="hidden lg:inline">Live sync</span>
+            </span>
           </div>
 
           {/* Explanatory text and feature boxes — only when no trip is active */}
