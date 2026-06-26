@@ -25,12 +25,6 @@ Seats: 2 people`
 
 export const SAMPLE_TRIPS = [
   {
-    id: "sample-1",
-    name: "Tokyo Trip",
-    emoji: "🗾",
-    data: SAMPLE_CONFIRMATION,
-  },
-  {
     id: "sample-2",
     name: "NYC Weekend",
     emoji: "🗽",
