@@ -6,7 +6,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { DEMO_USER_ID, SAMPLE_CONFIRMATION } from "@/lib/constants"
-import { SampleTripSelector } from "@/components/sample-trip-selector"
 import { cn } from "@/lib/utils"
 import type { Trip } from "@/lib/types"
 
@@ -116,10 +115,6 @@ export function IngestPanel({ onIngested }: { onIngested: (trip: Trip) => void }
         >
           {typing ? "Typing…" : "Use sample"}
         </Button>
-      </div>
-
-      <div className="mt-4 border-t border-border pt-4">
-        <SampleTripSelector onSelectSample={handleUseSample} />
       </div>
     </section>
   )
