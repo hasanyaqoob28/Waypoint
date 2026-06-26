@@ -61,21 +61,21 @@ export function IngestPanel({ onIngested }: { onIngested: (trip: Trip) => void }
 
   return (
     <section className="glass-panel rounded-3xl border border-border p-5 shadow-lg">
-      <div className="flex items-center gap-2">
+      <div className="flex cursor-default select-none items-center gap-2">
         <span className="flex size-7 items-center justify-center rounded-lg bg-accent/15 text-accent">
           <Sparkles className="size-4" />
         </span>
-        <h2 className="text-sm font-semibold text-foreground">
+        <h2 className="cursor-default select-none text-sm font-semibold text-foreground">
           Add a trip
         </h2>
-        <span className="ml-auto rounded-full bg-secondary px-2 py-0.5 font-mono text-[10px] font-semibold text-muted-foreground">
+        <span className="cursor-default select-none ml-auto rounded-full bg-secondary px-2 py-0.5 font-mono text-[10px] font-semibold text-muted-foreground">
           STEP 1
         </span>
       </div>
-      <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">
+      <p className="cursor-default select-none mt-2 text-[12px] leading-relaxed text-muted-foreground">
         Copy a flight or hotel confirmation email and paste it below — no
         formatting needed. New here? Tap{" "}
-        <span className="font-medium text-foreground">Use sample</span> to see it
+        <span className="cursor-pointer select-text font-medium text-foreground">Use sample</span> to see it
         work instantly.
       </p>
 
