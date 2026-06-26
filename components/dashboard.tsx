@@ -139,36 +139,39 @@ export function Dashboard() {
 
           {/* Explanatory text and feature boxes — only when no trip is active */}
           {!activeTrip && (
-            <div className="relative mt-6 grid gap-6 lg:grid-cols-[1fr_280px] lg:items-start">
-              <p className="max-w-2xl text-[13px] leading-relaxed text-muted-foreground text-pretty lg:text-sm">
-                Stop digging through emails on travel day. Paste your booking
-                confirmations and Travelway AI becomes your single source of truth —
-                telling you when to leave, which gate, what your baggage carousel is,
-                and what to do during the gaps.
-              </p>
+            <div className="relative mt-6 hidden lg:block">
+              {/* Desktop: full marketing description + feature cards */}
+              <div className="grid gap-6 lg:grid-cols-[1fr_280px] lg:items-start">
+                <p className="max-w-2xl text-[13px] leading-relaxed text-muted-foreground text-pretty lg:text-sm">
+                  Stop digging through emails on travel day. Paste your booking
+                  confirmations and Travelway AI becomes your single source of truth —
+                  telling you when to leave, which gate, what your baggage carousel is,
+                  and what to do during the gaps.
+                </p>
 
-              {/* Three key value props — right column */}
-              <div className="grid gap-2.5">
-                {DASHBOARD_FEATURES.map((feature) => (
-                  <div
-                    key={feature.title}
-                    className="rounded-xl border border-border/50 bg-background/40 p-2.5"
-                  >
-                    <div className="flex items-start gap-2">
-                      <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-secondary text-foreground">
-                        <feature.icon className="size-3" />
-                      </span>
-                      <div className="min-w-0">
-                        <p className="text-[11px] font-semibold text-foreground">
-                          {feature.title}
-                        </p>
-                        <p className="text-[10px] leading-relaxed text-muted-foreground">
-                          {feature.body}
-                        </p>
+                {/* Three key value props — right column */}
+                <div className="grid gap-2.5">
+                  {DASHBOARD_FEATURES.map((feature) => (
+                    <div
+                      key={feature.title}
+                      className="rounded-xl border border-border/50 bg-background/40 p-2.5"
+                    >
+                      <div className="flex items-start gap-2">
+                        <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-secondary text-foreground">
+                          <feature.icon className="size-3" />
+                        </span>
+                        <div className="min-w-0">
+                          <p className="text-[11px] font-semibold text-foreground">
+                            {feature.title}
+                          </p>
+                          <p className="text-[10px] leading-relaxed text-muted-foreground">
+                            {feature.body}
+                          </p>
+                        </div>
                       </div>
-                    </div>
                   </div>
                 ))}
+                </div>
               </div>
             </div>
           )}
