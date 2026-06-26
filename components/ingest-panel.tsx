@@ -93,7 +93,7 @@ export function IngestPanel({ onIngested }: { onIngested: (trip: Trip) => void }
 
       <div className="mt-3 flex items-center gap-2">
         <Button
-          onClick={() => handleUseSample()}
+          onClick={handleParse}
           disabled={loading || typing || !rawText.trim()}
           className="flex-1"
         >
