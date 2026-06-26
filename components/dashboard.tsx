@@ -11,6 +11,7 @@ import { EventCard } from "@/components/event-card"
 import { LivePreview } from "@/components/live-preview"
 import { EventTimeline, getCurrentEventIndex } from "@/components/event-timeline"
 import { ContextMoment } from "@/components/context-moment"
+import { AnimatedDemo } from "@/components/animated-demo"
 import { DEMO_USER_ID } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import type { Trip, ItineraryEvent } from "@/lib/types"
@@ -142,12 +143,17 @@ export function Dashboard() {
             <div className="relative mt-6 hidden lg:block">
               {/* Desktop: full marketing description + feature cards */}
               <div className="grid gap-6 lg:grid-cols-[1fr_280px] lg:items-start">
-                <p className="max-w-2xl text-[13px] leading-relaxed text-muted-foreground text-pretty lg:text-sm">
-                  Stop digging through emails on travel day. Paste your booking
-                  confirmations and Travelway AI becomes your single source of truth —
-                  telling you when to leave, which gate, what your baggage carousel is,
-                  and what to do during the gaps.
-                </p>
+                <div className="space-y-4">
+                  <p className="max-w-2xl text-[13px] leading-relaxed text-muted-foreground text-pretty lg:text-sm">
+                    Stop digging through emails on travel day. Paste your booking
+                    confirmations and Travelway AI becomes your single source of truth —
+                    telling you when to leave, which gate, what your baggage carousel is,
+                    and what to do during the gaps.
+                  </p>
+                  
+                  {/* Animated demo flow */}
+                  <AnimatedDemo />
+                </div>
 
                 {/* Three key value props — right column */}
                 <div className="grid gap-2.5">
