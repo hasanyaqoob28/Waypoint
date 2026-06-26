@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { DEMO_USER_ID, SAMPLE_CONFIRMATION } from "@/lib/constants"
+import { SampleTripSelector } from "@/components/sample-trip-selector"
 import { cn } from "@/lib/utils"
 import type { Trip } from "@/lib/types"
 
@@ -15,7 +16,7 @@ export function IngestPanel({ onIngested }: { onIngested: (trip: Trip) => void }
   const [typing, setTyping] = useState(false)
   const typingRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  function handleUseSample() {
+  function handleUseSample(sampleData: string = SAMPLE_CONFIRMATION) {
     if (loading || typing) return
     if (typingRef.current) clearInterval(typingRef.current)
     setTyping(true)
@@ -24,8 +25,8 @@ export function IngestPanel({ onIngested }: { onIngested: (trip: Trip) => void }
     // Auto-type the sample so the user watches it stream in (show, don't tell).
     typingRef.current = setInterval(() => {
       i += 3
-      setRawText(SAMPLE_CONFIRMATION.slice(0, i))
-      if (i >= SAMPLE_CONFIRMATION.length) {
+      setRawText(sampleData.slice(0, i))
+      if (i >= sampleData.length) {
         if (typingRef.current) clearInterval(typingRef.current)
         setTyping(false)
       }
@@ -92,7 +93,7 @@ export function IngestPanel({ onIngested }: { onIngested: (trip: Trip) => void }
 
       <div className="mt-3 flex items-center gap-2">
         <Button
-          onClick={handleParse}
+          onClick={() => handleUseSample()}
           disabled={loading || typing || !rawText.trim()}
           className="flex-1"
         >
@@ -110,11 +111,15 @@ export function IngestPanel({ onIngested }: { onIngested: (trip: Trip) => void }
         </Button>
         <Button
           variant="secondary"
-          onClick={handleUseSample}
+          onClick={() => handleUseSample()}
           disabled={loading || typing}
         >
           {typing ? "Typing…" : "Use sample"}
         </Button>
+      </div>
+
+      <div className="mt-4 border-t border-border pt-4">
+        <SampleTripSelector onSelectSample={handleUseSample} />
       </div>
     </section>
   )
