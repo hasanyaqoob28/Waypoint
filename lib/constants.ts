@@ -16,10 +16,4 @@ Shibuya Stream Excel Hotel Tokyu
 Check-in: 3:00 PM
 Check-out: 11:00 AM
 Confirmation: X992-H8B
-Room Type: Standard Double
-
-Activity Booking
-Dinner at Narisawa Restaurant
-8:30 PM - 10:00 PM
-2-6-15 Minami-Aoyama, Minato Ward, Tokyo
-Seats: 2 people`
+Room Type: Standard Double`
