@@ -18,10 +18,25 @@ import { toast } from "sonner"
 
 const TRIPS_KEY = `/api/trips?userId=${DEMO_USER_ID}`
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) => 
+  fetch(url)
+    .then((r) => {
+      if (!r.ok) {
+        console.warn("[v0] API returned status", r.status)
+        return { trips: [] }
+      }
+      return r.json()
+    })
+    .catch((error) => {
+      console.warn("[v0] Failed to fetch trips:", error.message)
+      return { trips: [] }
+    })
 
 export function Dashboard() {
-  const { data, isLoading } = useSWR<{ trips: Trip[] }>(TRIPS_KEY, fetcher)
+  const { data, isLoading } = useSWR<{ trips: Trip[] }>(TRIPS_KEY, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 60000,
+  })
   
   // Initialize selectedId from localStorage
   const [selectedId, setSelectedId] = useState<string | null>(() => {
