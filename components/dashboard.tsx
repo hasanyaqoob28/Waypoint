@@ -117,17 +117,17 @@ export function Dashboard() {
             className="pointer-events-none absolute -right-16 -top-20 size-64 rounded-full bg-primary/20 blur-3xl"
           />
           {/* Brand bar — always visible */}
-          <div className="relative">
+          <div className="relative cursor-default">
             <div className="flex items-center gap-x-4">
               <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/30">
                 <Navigation className="size-5" />
               </span>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
-                  <h1 className="truncate text-xl font-bold tracking-tight text-foreground lg:text-2xl">
+                  <h1 className="cursor-default truncate text-xl font-bold tracking-tight text-foreground lg:text-2xl">
                     Travelway
                   </h1>
-                  <span className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent lg:px-3 lg:py-1 lg:text-[11px]">
+                  <span className="cursor-default ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent lg:px-3 lg:py-1 lg:text-[11px]">
                     <span className="relative flex size-1.5 lg:size-2">
                       <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-70" />
                       <span className="relative inline-flex size-1.5 rounded-full bg-accent lg:size-2" />
@@ -138,7 +138,7 @@ export function Dashboard() {
                 </div>
               </div>
             </div>
-            <p className="text-[12px] text-muted-foreground lg:text-sm ml-15 mt-1">
+            <p className="cursor-default text-[12px] text-muted-foreground lg:text-sm ml-15 mt-1">
               Your whole trip, in one calm timeline
             </p>
           </div>
