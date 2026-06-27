@@ -56,13 +56,13 @@ export function Dashboard({ userId }: DashboardProps) {
   useEffect(() => {
     if (isDemo && typeof window !== "undefined") {
       const hasViewedTrip = localStorage.getItem("hasViewedTrip") === "true"
-      const pageWasRefreshed = sessionStorage.getItem("pageRefreshed") === "true"
       
-      if (hasViewedTrip && !pageWasRefreshed) {
-        // Mark that we've shown the prompt this session
-        sessionStorage.setItem("pageRefreshed", "true")
-        // Show modal after a brief delay
-        setTimeout(() => setShowAuthModal(true), 500)
+      if (hasViewedTrip) {
+        // Check if this is a page refresh by looking at navigation timing
+        if (performance.navigation.type === 1) {
+          // Type 1 means page was reloaded
+          setTimeout(() => setShowAuthModal(true), 500)
+        }
       }
     }
   }, [isDemo])
