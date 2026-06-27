@@ -25,6 +25,30 @@ export function AuthForm({ mode, onModeChange, isModal = false }: AuthFormProps)
 
   const isSignUp = mode === 'sign-up' || mode === 'signup'
 
+  const cleanErrorMessage = (message: string): string => {
+    // Remove property names like "[body.email]" from validation errors
+    const cleaned = message.replace(/^\[.*?\]\s*/, '')
+    
+    // Provide user-friendly messages for common errors
+    if (cleaned.toLowerCase().includes('invalid email')) {
+      return 'Invalid email address'
+    }
+    if (cleaned.toLowerCase().includes('email')) {
+      return 'Email is already in use'
+    }
+    if (cleaned.toLowerCase().includes('password')) {
+      return 'Password must be at least 8 characters'
+    }
+    if (cleaned.toLowerCase().includes('invalid credentials') || cleaned.toLowerCase().includes('user not found')) {
+      return 'Email or password is incorrect'
+    }
+    if (cleaned.toLowerCase().includes('user already exists')) {
+      return 'This email is already registered'
+    }
+    
+    return cleaned || 'An error occurred. Please try again.'
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -37,7 +61,7 @@ export function AuthForm({ mode, onModeChange, isModal = false }: AuthFormProps)
     setLoading(false)
 
     if (error) {
-      setError(error.message ?? 'Something went wrong')
+      setError(cleanErrorMessage(error.message ?? ''))
       return
     }
 
