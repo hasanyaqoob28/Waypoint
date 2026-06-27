@@ -252,8 +252,6 @@ export function Dashboard({ userId }: DashboardProps) {
           )}
         </div>
       </div>
-
-      <RegistrationPrompt isVisible={showPrompt} onClose={closePrompt} />
     </div>
   )
 }
