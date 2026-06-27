@@ -52,17 +52,17 @@ export function Dashboard({ userId }: DashboardProps) {
   const isDemo = userId === DEMO_USER_ID
   const [showAuthModal, setShowAuthModal] = useState(false)
   
-  // Show auth modal on page refresh if user is demo and has viewed a trip
+  // Show auth modal once per session if user has viewed a trip
   useEffect(() => {
     if (isDemo && typeof window !== "undefined") {
       const hasViewedTrip = localStorage.getItem("hasViewedTrip") === "true"
+      const hasShownModal = sessionStorage.getItem("authModalShown") === "true"
       
-      if (hasViewedTrip) {
-        // Check if this is a page refresh by looking at navigation timing
-        if (performance.navigation.type === 1) {
-          // Type 1 means page was reloaded
-          setTimeout(() => setShowAuthModal(true), 500)
-        }
+      if (hasViewedTrip && !hasShownModal) {
+        // Mark that we've shown the modal this session
+        sessionStorage.setItem("authModalShown", "true")
+        // Show modal after brief delay so user can see trip first
+        setTimeout(() => setShowAuthModal(true), 1000)
       }
     }
   }, [isDemo])
