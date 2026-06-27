@@ -13,7 +13,7 @@ import { LivePreview } from "@/components/live-preview"
 import { EventTimeline, getCurrentEventIndex } from "@/components/event-timeline"
 import { ContextMoment } from "@/components/context-moment"
 import { AnimatedDemo } from "@/components/animated-demo"
-import { AuthModal } from "@/components/auth-modal"
+import { SaveTripsCTA } from "@/components/save-trips-cta"
 import { DEMO_USER_ID } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import type { Trip, ItineraryEvent } from "@/lib/types"
@@ -49,24 +49,7 @@ export function Dashboard({ userId }: DashboardProps) {
     dedupingInterval: 60000,
   })
 
-  const isDemo = userId === DEMO_USER_ID
-  const [showAuthModal, setShowAuthModal] = useState(false)
-  
-  // Show auth modal on first visit for demo users to prompt registration
-  useEffect(() => {
-    if (isDemo && typeof window !== "undefined") {
-      const hasShownModal = localStorage.getItem("demoModalShown") === "true"
-      
-      if (!hasShownModal) {
-        // Show modal after 2 seconds on first visit
-        const timer = setTimeout(() => {
-          setShowAuthModal(true)
-          localStorage.setItem("demoModalShown", "true")
-        }, 2000)
-        return () => clearTimeout(timer)
-      }
-    }
-  }, [isDemo])
+  const isLoggedIn = userId !== DEMO_USER_ID
 
   const handleLogout = async () => {
     await fetch("/api/auth/sign-out", { method: "POST" })
@@ -164,7 +147,7 @@ export function Dashboard({ userId }: DashboardProps) {
                   <h1 className="cursor-default select-none truncate text-xl font-bold tracking-tight text-foreground lg:text-2xl">
                     Travelway
                   </h1>
-                  <div className="ml-auto flex items-center gap-2">
+                  <div className="ml-auto flex items-center gap-3">
                     <span className="cursor-default select-none inline-flex shrink-0 items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent lg:px-3 lg:py-1 lg:text-[11px]">
                       <span className="relative flex size-1.5 lg:size-2">
                         <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-70" />
@@ -173,16 +156,21 @@ export function Dashboard({ userId }: DashboardProps) {
                       <span className="lg:hidden">Live</span>
                       <span className="hidden lg:inline">Live sync</span>
                     </span>
-                    {userId !== "1" && (
+                    
+                    {isLoggedIn ? (
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={handleLogout}
-                        className="h-8 w-8 p-0"
+                        className="h-8 gap-2 px-2"
                       >
                         <LogOut className="size-4" />
                         <span className="sr-only">Sign out</span>
                       </Button>
+                    ) : (
+                      <span className="text-xs text-muted-foreground hidden lg:inline">
+                        Guest
+                      </span>
                     )}
                   </div>
                 </div>
@@ -243,6 +231,8 @@ export function Dashboard({ userId }: DashboardProps) {
         {/* Left panel: the input */}
         <div className="space-y-5 lg:sticky lg:top-6">
           <IngestPanel onIngested={handleIngested} />
+          
+          <SaveTripsCTA isLoggedIn={isLoggedIn} />
 
           {isLoading ? (
             <Skeleton className="h-32 w-full rounded-2xl" />
@@ -274,8 +264,6 @@ export function Dashboard({ userId }: DashboardProps) {
           )}
         </div>
       </div>
-
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   )
 }
