@@ -12,6 +12,8 @@ import { LivePreview } from "@/components/live-preview"
 import { EventTimeline, getCurrentEventIndex } from "@/components/event-timeline"
 import { ContextMoment } from "@/components/context-moment"
 import { AnimatedDemo } from "@/components/animated-demo"
+import { RegistrationPrompt } from "@/components/registration-prompt"
+import { useRegistrationPrompt } from "@/hooks/use-registration-prompt"
 import { DEMO_USER_ID } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import type { Trip, ItineraryEvent } from "@/lib/types"
@@ -38,6 +40,8 @@ export function Dashboard() {
     revalidateOnFocus: false,
     dedupingInterval: 60000,
   })
+  
+  const { showPrompt, closePrompt } = useRegistrationPrompt()
   
   // Initialize selectedId from localStorage
   const [selectedId, setSelectedId] = useState<string | null>(() => {
@@ -74,6 +78,13 @@ export function Dashboard() {
     () => trips.find((t) => t.tripId === selectedId) ?? trips[0] ?? null,
     [trips, selectedId],
   )
+
+  // Track when user has viewed a trip for registration prompt
+  useEffect(() => {
+    if (activeTrip && typeof window !== "undefined") {
+      localStorage.setItem("hasViewedTrip", "true")
+    }
+  }, [activeTrip])
 
   async function handleIngested(trip: Trip) {
     setSelectedId(trip.tripId)
@@ -224,6 +235,8 @@ export function Dashboard() {
           )}
         </div>
       </div>
+
+      <RegistrationPrompt isVisible={showPrompt} onClose={closePrompt} />
     </div>
   )
 }
