@@ -13,6 +13,7 @@ import { LivePreview } from "@/components/live-preview"
 import { EventTimeline, getCurrentEventIndex } from "@/components/event-timeline"
 import { ContextMoment } from "@/components/context-moment"
 import { AnimatedDemo } from "@/components/animated-demo"
+import { AuthModal } from "@/components/auth-modal"
 import { DEMO_USER_ID } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import type { Trip, ItineraryEvent } from "@/lib/types"
@@ -48,6 +49,24 @@ export function Dashboard({ userId }: DashboardProps) {
     dedupingInterval: 60000,
   })
 
+  const isDemo = userId === DEMO_USER_ID
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  
+  // Show auth modal on page refresh if user is demo and has viewed a trip
+  useEffect(() => {
+    if (isDemo && typeof window !== "undefined") {
+      const hasViewedTrip = localStorage.getItem("hasViewedTrip") === "true"
+      const pageWasRefreshed = sessionStorage.getItem("pageRefreshed") === "true"
+      
+      if (hasViewedTrip && !pageWasRefreshed) {
+        // Mark that we've shown the prompt this session
+        sessionStorage.setItem("pageRefreshed", "true")
+        // Show modal after a brief delay
+        setTimeout(() => setShowAuthModal(true), 500)
+      }
+    }
+  }, [isDemo])
+
   const handleLogout = async () => {
     await fetch("/api/auth/sign-out", { method: "POST" })
     router.push("/auth/login")
@@ -62,10 +81,12 @@ export function Dashboard({ userId }: DashboardProps) {
     return null
   })
 
-  // Persist selected trip ID to localStorage whenever it changes
+  // Persist selected trip ID to localStorage and track that user has viewed a trip
   useEffect(() => {
     if (selectedId && typeof window !== "undefined") {
       localStorage.setItem("selectedTripId", selectedId)
+      // Mark that user has viewed a trip (for auth modal on refresh)
+      localStorage.setItem("hasViewedTrip", "true")
     }
   }, [selectedId])
 
@@ -104,7 +125,7 @@ export function Dashboard({ userId }: DashboardProps) {
   async function handleDelete(trip: Trip) {
     if (trip.tripId === selectedId) setSelectedId(null)
     await mutate(
-      TRIPS_KEY,
+      tripsKey,
       (current: { trips: Trip[] } | undefined) => ({
         trips: (current?.trips ?? []).filter((t) => t.tripId !== trip.tripId),
       }),
@@ -114,12 +135,12 @@ export function Dashboard({ userId }: DashboardProps) {
       await fetch("/api/trips", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: DEMO_USER_ID, tripId: trip.tripId }),
+        body: JSON.stringify({ userId, tripId: trip.tripId }),
       })
       toast.success("Trip removed")
     } catch {
       toast.error("Could not delete trip")
-      mutate(TRIPS_KEY)
+      mutate(tripsKey)
     }
   }
 
@@ -252,6 +273,8 @@ export function Dashboard({ userId }: DashboardProps) {
           )}
         </div>
       </div>
+
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   )
 }
