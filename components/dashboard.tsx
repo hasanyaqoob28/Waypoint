@@ -52,17 +52,18 @@ export function Dashboard({ userId }: DashboardProps) {
   const isDemo = userId === DEMO_USER_ID
   const [showAuthModal, setShowAuthModal] = useState(false)
   
-  // Show auth modal once per session if user has viewed a trip
+  // Show auth modal on first visit for demo users to prompt registration
   useEffect(() => {
     if (isDemo && typeof window !== "undefined") {
-      const hasViewedTrip = localStorage.getItem("hasViewedTrip") === "true"
-      const hasShownModal = sessionStorage.getItem("authModalShown") === "true"
+      const hasShownModal = localStorage.getItem("demoModalShown") === "true"
       
-      if (hasViewedTrip && !hasShownModal) {
-        // Mark that we've shown the modal this session
-        sessionStorage.setItem("authModalShown", "true")
-        // Show modal after brief delay so user can see trip first
-        setTimeout(() => setShowAuthModal(true), 1000)
+      if (!hasShownModal) {
+        // Show modal after 2 seconds on first visit
+        const timer = setTimeout(() => {
+          setShowAuthModal(true)
+          localStorage.setItem("demoModalShown", "true")
+        }, 2000)
+        return () => clearTimeout(timer)
       }
     }
   }, [isDemo])
