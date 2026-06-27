@@ -83,6 +83,7 @@ export function Dashboard() {
   useEffect(() => {
     if (activeTrip && typeof window !== "undefined") {
       localStorage.setItem("hasViewedTrip", "true")
+      console.log("[v0] Trip viewed - registration prompt enabled")
     }
   }, [activeTrip])
 

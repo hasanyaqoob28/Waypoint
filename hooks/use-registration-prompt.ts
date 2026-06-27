@@ -1,10 +1,21 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 
+// This hook triggers a registration prompt in two ways:
+// 1. After 60 seconds of inactivity when viewing a trip
+// 2. On page refresh/unload if the user has viewed a trip
+
 export function useRegistrationPrompt() {
   const [showPrompt, setShowPrompt] = useState(false)
+  const [hasTrip, setHasTrip] = useState(false)
   const inactivityTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const hasTrip = typeof window !== 'undefined' && localStorage.getItem('hasViewedTrip') === 'true'
   const hasShownPromptRef = useRef(false)
+
+  // Check if user has viewed a trip
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setHasTrip(localStorage.getItem('hasViewedTrip') === 'true')
+    }
+  }, [])
 
   // Handle page refresh - show prompt if user had viewed a trip
   useEffect(() => {
