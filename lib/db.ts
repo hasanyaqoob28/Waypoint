@@ -1,7 +1,7 @@
 import { Pool, ClientBase } from 'pg'
 import { attachDatabasePool } from '@vercel/functions'
 
-const pool = new Pool({
+export const pool = new Pool({
   host: process.env.PGHOST,
   database: process.env.PGDATABASE || 'travelway_new',
   port: 5432,

@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react"
 import useSWR, { mutate } from "swr"
-import { Navigation, Trash2, Clock, Luggage, ListChecks } from "lucide-react"
+import { Navigation, Trash2, Clock, Luggage, ListChecks, LogOut } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
@@ -12,14 +13,14 @@ import { LivePreview } from "@/components/live-preview"
 import { EventTimeline, getCurrentEventIndex } from "@/components/event-timeline"
 import { ContextMoment } from "@/components/context-moment"
 import { AnimatedDemo } from "@/components/animated-demo"
-import { RegistrationPrompt } from "@/components/registration-prompt"
-import { useRegistrationPrompt } from "@/hooks/use-registration-prompt"
 import { DEMO_USER_ID } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import type { Trip, ItineraryEvent } from "@/lib/types"
 import { toast } from "sonner"
 
-const TRIPS_KEY = `/api/trips?userId=${DEMO_USER_ID}`
+const TRIPS_KEY_BASE = `/api/trips?userId=`
+
+// Will be updated with actual user ID in the component
 
 const fetcher = (url: string) => 
   fetch(url)
@@ -35,13 +36,23 @@ const fetcher = (url: string) =>
       return { trips: [] }
     })
 
-export function Dashboard() {
-  const { data, isLoading } = useSWR<{ trips: Trip[] }>(TRIPS_KEY, fetcher, {
+interface DashboardProps {
+  userId: string
+}
+
+export function Dashboard({ userId }: DashboardProps) {
+  const router = useRouter()
+  const tripsKey = `${TRIPS_KEY_BASE}${userId}`
+  const { data, isLoading } = useSWR<{ trips: Trip[] }>(tripsKey, fetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 60000,
   })
-  
-  const { showPrompt, closePrompt } = useRegistrationPrompt()
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/sign-out", { method: "POST" })
+    router.push("/auth/login")
+    router.refresh()
+  }
   
   // Initialize selectedId from localStorage
   const [selectedId, setSelectedId] = useState<string | null>(() => {
@@ -79,18 +90,10 @@ export function Dashboard() {
     [trips, selectedId],
   )
 
-  // Track when user has viewed a trip for registration prompt
-  useEffect(() => {
-    if (activeTrip && typeof window !== "undefined") {
-      localStorage.setItem("hasViewedTrip", "true")
-      console.log("[v0] Trip viewed - registration prompt enabled")
-    }
-  }, [activeTrip])
-
   async function handleIngested(trip: Trip) {
     setSelectedId(trip.tripId)
     await mutate(
-      TRIPS_KEY,
+      tripsKey,
       (current: { trips: Trip[] } | undefined) => ({
         trips: [trip, ...(current?.trips ?? [])],
       }),
@@ -139,14 +142,27 @@ export function Dashboard() {
                   <h1 className="cursor-default select-none truncate text-xl font-bold tracking-tight text-foreground lg:text-2xl">
                     Travelway
                   </h1>
-                  <span className="cursor-default select-none ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent lg:px-3 lg:py-1 lg:text-[11px]">
-                    <span className="relative flex size-1.5 lg:size-2">
-                      <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-70" />
-                      <span className="relative inline-flex size-1.5 rounded-full bg-accent lg:size-2" />
+                  <div className="ml-auto flex items-center gap-2">
+                    <span className="cursor-default select-none inline-flex shrink-0 items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent lg:px-3 lg:py-1 lg:text-[11px]">
+                      <span className="relative flex size-1.5 lg:size-2">
+                        <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-70" />
+                        <span className="relative inline-flex size-1.5 rounded-full bg-accent lg:size-2" />
+                      </span>
+                      <span className="lg:hidden">Live</span>
+                      <span className="hidden lg:inline">Live sync</span>
                     </span>
-                    <span className="lg:hidden">Live</span>
-                    <span className="hidden lg:inline">Live sync</span>
-                  </span>
+                    {userId !== "1" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleLogout}
+                        className="h-8 w-8 p-0"
+                      >
+                        <LogOut className="size-4" />
+                        <span className="sr-only">Sign out</span>
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
