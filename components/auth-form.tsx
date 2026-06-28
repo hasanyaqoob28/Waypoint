@@ -61,6 +61,7 @@ export function AuthForm({ mode, onModeChange, isModal = false }: AuthFormProps)
     setLoading(false)
 
     if (error) {
+      console.log("[v0] Auth error:", error)
       setError(cleanErrorMessage(error.message ?? ''))
       return
     }
