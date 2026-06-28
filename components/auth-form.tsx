@@ -55,7 +55,7 @@ export function AuthForm({ mode, onModeChange, isModal = false }: AuthFormProps)
     setLoading(true)
 
     const { error } = isSignUp
-      ? await authClient.signUp.email({ email, password, name })
+      ? await authClient.signUp({ email, password, name })
       : await authClient.signIn.email({ email, password })
 
     setLoading(false)
