@@ -1,5 +1,4 @@
 import { betterAuth } from 'better-auth'
-import { password } from 'better-auth/plugins'
 import { pool } from '@/lib/db'
 
 export const auth = betterAuth({
@@ -11,7 +10,6 @@ export const auth = betterAuth({
       : process.env.VERCEL_URL
         ? `https://${process.env.VERCEL_URL}`
         : process.env.V0_RUNTIME_URL),
-  plugins: [password()],
   trustedOrigins: [
     ...(process.env.V0_RUNTIME_URL ? [process.env.V0_RUNTIME_URL] : []),
     ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
