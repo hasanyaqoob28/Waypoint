@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { signUp, signIn } from '@/lib/demo-auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -54,21 +55,12 @@ export function AuthForm({ mode, onModeChange, isModal = false }: AuthFormProps)
     setLoading(true)
 
     try {
-      const endpoint = isSignUp ? '/api/signup' : '/api/login'
-      const body = isSignUp 
-        ? { email, password, name }
-        : { email, password }
+      const result = isSignUp
+        ? signUp(email, password, name)
+        : signIn(email, password)
 
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        setError(data.error || 'An error occurred')
+      if (!result.success) {
+        setError(result.error || 'An error occurred')
         setLoading(false)
         return
       }
@@ -77,7 +69,7 @@ export function AuthForm({ mode, onModeChange, isModal = false }: AuthFormProps)
       router.push('/')
       router.refresh()
     } catch (err) {
-      setError('Network error. Please try again.')
+      setError('An error occurred. Please try again.')
       setLoading(false)
     }
   }
