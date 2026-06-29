@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import useSWR, { mutate } from "swr"
 import { Navigation, Trash2, Clock, Luggage, ListChecks, LogOut } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useAuthState } from "@/hooks/useAuthState"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
@@ -44,17 +45,26 @@ interface DashboardProps {
 
 export function Dashboard({ userId }: DashboardProps) {
   const router = useRouter()
+  const { user, isLoggedIn: demoIsLoggedIn, logout: demoLogout } = useAuthState()
+  
   const tripsKey = `${TRIPS_KEY_BASE}${userId}`
   const { data, isLoading } = useSWR<{ trips: Trip[] }>(tripsKey, fetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 60000,
   })
 
-  const isLoggedIn = userId !== DEMO_USER_ID
+  // Check both demo auth and server auth
+  const isLoggedIn = userId !== DEMO_USER_ID || demoIsLoggedIn
 
   const handleLogout = async () => {
-    await fetch("/api/auth/sign-out", { method: "POST" })
-    router.push("/auth/login")
+    // Clear demo auth
+    demoLogout()
+    // Try to clear server auth
+    try {
+      await fetch("/api/auth/sign-out", { method: "POST" })
+    } catch (error) {
+      console.log('[v0] Server logout not available')
+    }
     router.refresh()
   }
   
@@ -159,15 +169,25 @@ export function Dashboard({ userId }: DashboardProps) {
                     </span>
                     
                     {isLoggedIn ? (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleLogout}
-                        className="h-8 gap-2 px-2"
-                      >
-                        <LogOut className="size-4" />
-                        <span className="sr-only">Sign out</span>
-                      </Button>
+                      <div className="flex items-center gap-3">
+                        <div className="hidden sm:flex flex-col items-end gap-0.5">
+                          <span className="text-xs font-medium text-foreground">
+                            {user?.name || user?.email?.split('@')[0] || 'User'}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground">
+                            {user?.email || 'Logged in'}
+                          </span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleLogout}
+                          className="h-8 gap-2 px-2"
+                        >
+                          <LogOut className="size-4" />
+                          <span className="sr-only">Sign out</span>
+                        </Button>
+                      </div>
                     ) : (
                       <span className="text-xs text-muted-foreground hidden lg:inline">
                         Guest
@@ -233,7 +253,7 @@ export function Dashboard({ userId }: DashboardProps) {
         <div className="space-y-5 lg:sticky lg:top-6">
           <IngestPanel onIngested={handleIngested} />
           
-          <SaveTripsCTA isLoggedIn={isLoggedIn} />
+          <SaveTripsCTA isLoggedIn={demoIsLoggedIn} />
 
           {isLoading ? (
             <Skeleton className="h-32 w-full rounded-2xl" />
