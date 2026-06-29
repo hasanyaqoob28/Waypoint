@@ -203,13 +203,19 @@ export function Dashboard({ userId }: DashboardProps) {
             <div className="relative mt-6 hidden lg:block">
               {/* Desktop: full marketing description + feature cards */}
               <div className="grid gap-6 lg:grid-cols-[1fr_280px] lg:items-start">
-                <div className="space-y-4">
-                  <p className="max-w-2xl text-[13px] leading-relaxed text-muted-foreground text-pretty lg:text-sm">
-                    Stop digging through emails on travel day. Paste your booking
-                    confirmations and Travelway AI becomes your single source of truth —
-                    telling you when to leave, which gate, what your baggage carousel is,
-                    and what to do during the gaps.
-                  </p>
+                <div className="space-y-6">
+                  {/* Hero section with clear CTA */}
+                  <div className="space-y-3">
+                    <h1 className="text-2xl font-bold text-foreground">
+                      Your AI Travel Itinerary
+                    </h1>
+                    <p className="max-w-2xl text-[13px] leading-relaxed text-muted-foreground text-pretty lg:text-sm">
+                      Stop digging through emails on travel day. Paste your booking
+                      confirmations and Travelway AI becomes your single source of truth —
+                      telling you when to leave, which gate, what your baggage carousel is,
+                      and what to do during the gaps.
+                    </p>
+                  </div>
                   
                   {/* Animated demo flow */}
                   <AnimatedDemo />
