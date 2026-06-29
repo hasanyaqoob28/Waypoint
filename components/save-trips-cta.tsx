@@ -13,11 +13,6 @@ export function SaveTripsCTA({ isLoggedIn }: SaveTripsCTAProps) {
     return null
   }
 
-  const handleSignIn = () => {
-    // Emit event that AuthModalPortal listens for
-    window.dispatchEvent(new Event('open-auth-modal'))
-  }
-
   return (
     <Card className="border-accent/30 bg-accent/5 p-4">
       <div className="flex items-start justify-between gap-4">
@@ -32,13 +27,19 @@ export function SaveTripsCTA({ isLoggedIn }: SaveTripsCTAProps) {
             </p>
           </div>
         </div>
-        <Button
-          onClick={handleSignIn}
-          size="sm"
-          className="flex-shrink-0"
-        >
-          Sign in
-        </Button>
+        <div className="flex-shrink-0 flex flex-col items-center gap-1.5">
+          <Button
+            disabled
+            size="sm"
+            variant="secondary"
+            className="opacity-50 cursor-not-allowed"
+          >
+            Sign in
+          </Button>
+          <span className="text-[10px] font-medium text-accent bg-accent/10 px-2 py-0.5 rounded">
+            Coming soon
+          </span>
+        </div>
       </div>
     </Card>
   )
