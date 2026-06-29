@@ -14,6 +14,7 @@ import { EventTimeline, getCurrentEventIndex } from "@/components/event-timeline
 import { ContextMoment } from "@/components/context-moment"
 import { AnimatedDemo } from "@/components/animated-demo"
 import { SaveTripsCTA } from "@/components/save-trips-cta"
+import { AuthModalPortal } from "@/components/auth-modal-portal"
 import { DEMO_USER_ID } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import type { Trip, ItineraryEvent } from "@/lib/types"
@@ -264,6 +265,9 @@ export function Dashboard({ userId }: DashboardProps) {
           )}
         </div>
       </div>
+
+      {/* Auth modal portal - rendered outside grid to be above all elements */}
+      <AuthModalPortal isLoggedIn={isLoggedIn} />
     </div>
   )
 }
