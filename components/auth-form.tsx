@@ -49,7 +49,7 @@ export function AuthForm({ mode, onModeChange, isModal = false }: AuthFormProps)
     return cleaned || 'An error occurred. Please try again.'
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
@@ -65,9 +65,12 @@ export function AuthForm({ mode, onModeChange, isModal = false }: AuthFormProps)
         return
       }
 
-      // Success - refresh and redirect
-      router.push('/')
-      router.refresh()
+      // Success - redirect (don't use async/await as it causes hanging)
+      setLoading(false)
+      setTimeout(() => {
+        router.push('/')
+        router.refresh()
+      }, 100)
     } catch (err) {
       setError('An error occurred. Please try again.')
       setLoading(false)
