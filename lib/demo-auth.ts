@@ -40,6 +40,8 @@ export function signUp(email: string, password: string, name: string): { success
   if (typeof window !== 'undefined') {
     const user: DemoUser = { id: userId, email, name }
     localStorage.setItem(DEMO_USER_KEY, JSON.stringify(user))
+    // Dispatch event to notify portal of login
+    window.dispatchEvent(new StorageEvent('storage', { key: DEMO_USER_KEY }))
   }
 
   return { success: true, userId }
@@ -66,6 +68,8 @@ export function signIn(email: string, password: string): { success: boolean; err
   if (typeof window !== 'undefined') {
     const demoUser: DemoUser = { id: userId, email: user.email, name: user.name }
     localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser))
+    // Dispatch event to notify portal of login
+    window.dispatchEvent(new StorageEvent('storage', { key: DEMO_USER_KEY }))
   }
 
   return { success: true, userId }
