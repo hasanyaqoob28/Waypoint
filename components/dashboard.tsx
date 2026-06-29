@@ -188,11 +188,7 @@ export function Dashboard({ userId }: DashboardProps) {
                           <span className="sr-only">Sign out</span>
                         </Button>
                       </div>
-                    ) : (
-                      <span className="text-xs text-muted-foreground hidden lg:inline">
-                        Guest
-                      </span>
-                    )}
+                    ) : null}
                   </div>
                 </div>
               </div>
