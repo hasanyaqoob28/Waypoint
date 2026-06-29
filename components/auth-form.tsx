@@ -60,12 +60,12 @@ export function AuthForm({ mode, onModeChange, isModal = false }: AuthFormProps)
         : signIn(email, password)
 
       if (!result.success) {
-        setError(result.error || 'An error occurred')
+        setError(cleanErrorMessage(result.error || 'An error occurred'))
         setLoading(false)
         return
       }
 
-      // Success - redirect (don't use async/await as it causes hanging)
+      // Success - redirect
       setLoading(false)
       setTimeout(() => {
         router.push('/')

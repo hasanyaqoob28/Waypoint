@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 export interface AuthUser {
   id: string
   email: string
-  name: string
+  name?: string
 }
 
 export function useAuthState() {
@@ -13,36 +13,33 @@ export function useAuthState() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Check localStorage for logged-in user
-    const checkAuth = () => {
+    // Fetch current user from the server
+    const checkAuth = async () => {
       try {
-        const storedUser = localStorage.getItem('demo_user')
-        if (storedUser) {
-          setUser(JSON.parse(storedUser))
+        const response = await fetch('/api/auth/me')
+        if (response.ok) {
+          const data = await response.json()
+          setUser(data.user)
         } else {
           setUser(null)
         }
       } catch (error) {
-        console.error('[v0] Error checking auth:', error)
+        console.log('[v0] Error checking auth:', error)
         setUser(null)
       }
       setIsLoading(false)
     }
 
     checkAuth()
-
-    // Listen for storage changes (from other tabs/windows)
-    window.addEventListener('storage', checkAuth)
-
-    return () => {
-      window.removeEventListener('storage', checkAuth)
-    }
   }, [])
 
-  const logout = () => {
-    localStorage.removeItem('demo_user')
-    localStorage.removeItem('demo_users_db')
-    setUser(null)
+  const logout = async () => {
+    try {
+      await fetch('/api/auth/sign-out', { method: 'POST' })
+      setUser(null)
+    } catch (error) {
+      console.log('[v0] Logout error:', error)
+    }
   }
 
   return {
