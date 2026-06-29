@@ -25,6 +25,9 @@ export function SaveTripsCTA({ isLoggedIn }: SaveTripsCTAProps) {
             <p className="text-xs text-muted-foreground mt-1">
               Create an account to save multiple trips and access them anytime from any device.
             </p>
+            <p className="text-xs text-muted-foreground mt-2 opacity-75">
+              You can create and explore unlimited trips below without signing in.
+            </p>
           </div>
         </div>
         <div className="flex-shrink-0 flex flex-col items-center gap-1.5">
