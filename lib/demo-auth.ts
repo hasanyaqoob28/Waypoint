@@ -1,6 +1,7 @@
 'use client'
 
 const DEMO_USER_KEY = 'demo_user'
+const DEMO_USERS_DB_KEY = 'demo_users_db'
 
 export interface DemoUser {
   id: string
@@ -8,10 +9,23 @@ export interface DemoUser {
   name: string
 }
 
-// Simple in-memory storage for demo (in real app would be database)
-const demoUsers: Record<string, { email: string; name: string; password: string }> = {}
+// Get all users from localStorage
+function getAllUsers(): Record<string, { email: string; name: string; password: string }> {
+  if (typeof window === 'undefined') return {}
+  const stored = localStorage.getItem(DEMO_USERS_DB_KEY)
+  return stored ? JSON.parse(stored) : {}
+}
+
+// Save all users to localStorage
+function saveAllUsers(users: Record<string, { email: string; name: string; password: string }>) {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(DEMO_USERS_DB_KEY, JSON.stringify(users))
+  }
+}
 
 export function signUp(email: string, password: string, name: string): { success: boolean; error?: string; userId?: string } {
+  const demoUsers = getAllUsers()
+  
   // Check if user exists
   if (Object.values(demoUsers).some(u => u.email === email)) {
     return { success: false, error: 'Email already registered' }
@@ -20,18 +34,20 @@ export function signUp(email: string, password: string, name: string): { success
   // Create user
   const userId = `user_${Date.now()}`
   demoUsers[userId] = { email, password, name }
+  saveAllUsers(demoUsers)
   
-  // Store in localStorage
+  // Store current user in localStorage
   if (typeof window !== 'undefined') {
     const user: DemoUser = { id: userId, email, name }
     localStorage.setItem(DEMO_USER_KEY, JSON.stringify(user))
-    localStorage.setItem(`${userId}_password`, password) // For demo only
   }
 
   return { success: true, userId }
 }
 
 export function signIn(email: string, password: string): { success: boolean; error?: string; userId?: string } {
+  const demoUsers = getAllUsers()
+  
   // Find user
   const userEntry = Object.entries(demoUsers).find(([_, u]) => u.email === email)
   
@@ -46,7 +62,7 @@ export function signIn(email: string, password: string): { success: boolean; err
     return { success: false, error: 'Email or password is incorrect' }
   }
 
-  // Store in localStorage
+  // Store current user in localStorage
   if (typeof window !== 'undefined') {
     const demoUser: DemoUser = { id: userId, email: user.email, name: user.name }
     localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser))
