@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { authClient } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -54,20 +53,33 @@ export function AuthForm({ mode, onModeChange, isModal = false }: AuthFormProps)
     setError(null)
     setLoading(true)
 
-    const { error } = isSignUp
-      ? await authClient.signUp({ email, password, name })
-      : await authClient.signIn.email({ email, password })
+    try {
+      const endpoint = isSignUp ? '/api/signup' : '/api/login'
+      const body = isSignUp 
+        ? { email, password, name }
+        : { email, password }
 
-    setLoading(false)
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
 
-    if (error) {
-      console.log("[v0] Auth error:", error)
-      setError(cleanErrorMessage(error.message ?? ''))
-      return
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || 'An error occurred')
+        setLoading(false)
+        return
+      }
+
+      // Success - refresh and redirect
+      router.push('/')
+      router.refresh()
+    } catch (err) {
+      setError('Network error. Please try again.')
+      setLoading(false)
     }
-
-    router.push('/')
-    router.refresh()
   }
 
   const formContent = (

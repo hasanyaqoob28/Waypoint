@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { AuthModal } from '@/components/auth-modal'
+import { AuthModalOverlay } from '@/components/auth-modal-overlay'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Lock } from 'lucide-react'
@@ -42,7 +42,7 @@ export function SaveTripsCTA({ isLoggedIn }: SaveTripsCTAProps) {
         </div>
       </Card>
 
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      <AuthModalOverlay isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </>
   )
 }
