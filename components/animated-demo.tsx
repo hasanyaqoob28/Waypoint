@@ -57,7 +57,7 @@ export function AnimatedDemo() {
                 : "translate-x-full opacity-0"
           }`}
         >
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          <p className="cursor-default select-none text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             Step 1: Paste Email
           </p>
           <div className="space-y-2">
@@ -68,7 +68,7 @@ export function AnimatedDemo() {
                 <div className="text-accent/70">Departs: 10:40 AM</div>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="cursor-default select-none text-xs text-muted-foreground">
               Copy any email confirmation and paste it here...
             </p>
           </div>
@@ -84,7 +84,7 @@ export function AnimatedDemo() {
                 : "translate-x-full opacity-0"
           }`}
         >
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          <p className="cursor-default select-none text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             Step 2: AI Parsing
           </p>
           <div className="flex items-center gap-3">
@@ -94,7 +94,7 @@ export function AnimatedDemo() {
               <div className="h-2 w-24 animate-pulse rounded-full bg-accent/20" />
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">Extracting flight, hotel, and event details...</p>
+          <p className="cursor-default select-none text-xs text-muted-foreground">Extracting flight, hotel, and event details...</p>
         </div>
 
         {/* Step 3: Timeline Result */}
@@ -107,7 +107,7 @@ export function AnimatedDemo() {
                 : "translate-x-full opacity-0"
           }`}
         >
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          <p className="cursor-default select-none text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             Step 3: Your Timeline
           </p>
           <div className="space-y-2">
@@ -130,10 +130,10 @@ export function AnimatedDemo() {
       </div>
 
       {/* Step labels */}
-      <div className="flex justify-between text-xs text-muted-foreground">
-        <span>Paste Email</span>
-        <span>Parse with AI</span>
-        <span>View Timeline</span>
+      <div className="flex cursor-default select-none justify-between text-xs text-muted-foreground">
+        <span className="cursor-default select-none">Paste Email</span>
+        <span className="cursor-default select-none">Parse with AI</span>
+        <span className="cursor-default select-none">View Timeline</span>
       </div>
     </div>
   )

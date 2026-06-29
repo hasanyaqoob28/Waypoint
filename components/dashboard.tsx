@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react"
 import useSWR, { mutate } from "swr"
-import { Navigation, Trash2, Clock, Luggage, ListChecks } from "lucide-react"
+import { Navigation, Trash2, Clock, Luggage, ListChecks, LogOut } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useAuthState } from "@/hooks/useAuthState"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
@@ -12,12 +14,15 @@ import { LivePreview } from "@/components/live-preview"
 import { EventTimeline, getCurrentEventIndex } from "@/components/event-timeline"
 import { ContextMoment } from "@/components/context-moment"
 import { AnimatedDemo } from "@/components/animated-demo"
+import { AuthModalPortal } from "@/components/auth-modal-portal"
 import { DEMO_USER_ID } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import type { Trip, ItineraryEvent } from "@/lib/types"
 import { toast } from "sonner"
 
-const TRIPS_KEY = `/api/trips?userId=${DEMO_USER_ID}`
+const TRIPS_KEY_BASE = `/api/trips?userId=`
+
+// Will be updated with actual user ID in the component
 
 const fetcher = (url: string) => 
   fetch(url)
@@ -33,11 +38,34 @@ const fetcher = (url: string) =>
       return { trips: [] }
     })
 
-export function Dashboard() {
-  const { data, isLoading } = useSWR<{ trips: Trip[] }>(TRIPS_KEY, fetcher, {
+interface DashboardProps {
+  userId: string
+}
+
+export function Dashboard({ userId }: DashboardProps) {
+  const router = useRouter()
+  const { user, isLoggedIn: demoIsLoggedIn, logout: demoLogout } = useAuthState()
+  
+  const tripsKey = `${TRIPS_KEY_BASE}${userId}`
+  const { data, isLoading } = useSWR<{ trips: Trip[] }>(tripsKey, fetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 60000,
   })
+
+  // Check both demo auth and server auth
+  const isLoggedIn = userId !== DEMO_USER_ID || demoIsLoggedIn
+
+  const handleLogout = async () => {
+    // Clear demo auth
+    demoLogout()
+    // Try to clear server auth
+    try {
+      await fetch("/api/auth/sign-out", { method: "POST" })
+    } catch (error) {
+      console.log('[v0] Server logout not available')
+    }
+    router.refresh()
+  }
   
   // Initialize selectedId from localStorage
   const [selectedId, setSelectedId] = useState<string | null>(() => {
@@ -47,10 +75,12 @@ export function Dashboard() {
     return null
   })
 
-  // Persist selected trip ID to localStorage whenever it changes
+  // Persist selected trip ID to localStorage and track that user has viewed a trip
   useEffect(() => {
     if (selectedId && typeof window !== "undefined") {
       localStorage.setItem("selectedTripId", selectedId)
+      // Mark that user has viewed a trip (for auth modal on refresh)
+      localStorage.setItem("hasViewedTrip", "true")
     }
   }, [selectedId])
 
@@ -78,7 +108,7 @@ export function Dashboard() {
   async function handleIngested(trip: Trip) {
     setSelectedId(trip.tripId)
     await mutate(
-      TRIPS_KEY,
+      tripsKey,
       (current: { trips: Trip[] } | undefined) => ({
         trips: [trip, ...(current?.trips ?? [])],
       }),
@@ -89,7 +119,7 @@ export function Dashboard() {
   async function handleDelete(trip: Trip) {
     if (trip.tripId === selectedId) setSelectedId(null)
     await mutate(
-      TRIPS_KEY,
+      tripsKey,
       (current: { trips: Trip[] } | undefined) => ({
         trips: (current?.trips ?? []).filter((t) => t.tripId !== trip.tripId),
       }),
@@ -99,12 +129,12 @@ export function Dashboard() {
       await fetch("/api/trips", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: DEMO_USER_ID, tripId: trip.tripId }),
+        body: JSON.stringify({ userId, tripId: trip.tripId }),
       })
       toast.success("Trip removed")
     } catch {
       toast.error("Could not delete trip")
-      mutate(TRIPS_KEY)
+      mutate(tripsKey)
     }
   }
 
@@ -117,25 +147,54 @@ export function Dashboard() {
             className="pointer-events-none absolute -right-16 -top-20 size-64 rounded-full bg-primary/20 blur-3xl"
           />
           {/* Brand bar — always visible */}
-          <div className="relative flex flex-wrap items-center gap-x-4 gap-y-3">
-            <span className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/30">
-              <Navigation className="size-5" />
-            </span>
-            <div className="min-w-0">
-              <h1 className="text-xl font-bold tracking-tight text-foreground lg:text-2xl">
-                Travelway
-              </h1>
-              <p className="text-[12px] text-muted-foreground lg:text-sm">
-                Your whole trip, in one calm timeline
-              </p>
-            </div>
-            <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-medium text-accent">
-              <span className="relative flex size-2">
-                <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-70" />
-                <span className="relative inline-flex size-2 rounded-full bg-accent" />
+          <div className="relative cursor-default select-none">
+            <div className="flex items-center gap-x-4">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/30">
+                <Navigation className="size-5" />
               </span>
-              Live sync
-            </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <h1 className="cursor-default select-none truncate text-xl font-bold tracking-tight text-foreground lg:text-2xl">
+                    Travelway
+                  </h1>
+                  <div className="ml-auto flex items-center gap-3">
+                    <span className="cursor-default select-none inline-flex shrink-0 items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent lg:px-3 lg:py-1 lg:text-[11px]">
+                      <span className="relative flex size-1.5 lg:size-2">
+                        <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-70" />
+                        <span className="relative inline-flex size-1.5 rounded-full bg-accent lg:size-2" />
+                      </span>
+                      <span className="lg:hidden">Live</span>
+                      <span className="hidden lg:inline">Live sync</span>
+                    </span>
+                    
+                    {isLoggedIn ? (
+                      <div className="flex items-center gap-3">
+                        <div className="hidden sm:flex flex-col items-end gap-0.5">
+                          <span className="text-xs font-medium text-foreground">
+                            {user?.name || user?.email?.split('@')[0] || 'User'}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground">
+                            {user?.email || 'Logged in'}
+                          </span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleLogout}
+                          className="h-8 gap-2 px-2"
+                        >
+                          <LogOut className="size-4" />
+                          <span className="sr-only">Sign out</span>
+                        </Button>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p className="cursor-default select-none text-[12px] text-muted-foreground lg:text-sm ml-15 mt-1">
+              Your whole trip, in one calm timeline
+            </p>
           </div>
 
           {/* Explanatory text and feature boxes — only when no trip is active */}
@@ -219,6 +278,9 @@ export function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* Auth modal portal - rendered outside grid to be above all elements */}
+      <AuthModalPortal isLoggedIn={isLoggedIn} />
     </div>
   )
 }

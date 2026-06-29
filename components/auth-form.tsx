@@ -1,0 +1,178 @@
+'use client'
+
+import { useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { signUp, signIn } from '@/lib/demo-auth'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card } from '@/components/ui/card'
+
+interface AuthFormProps {
+  mode: 'sign-in' | 'sign-up' | 'login' | 'signup'
+  onModeChange?: (mode: 'login' | 'signup') => void
+  isModal?: boolean
+}
+
+export function AuthForm({ mode, onModeChange, isModal = false }: AuthFormProps) {
+  const router = useRouter()
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  const isSignUp = mode === 'sign-up' || mode === 'signup'
+
+  const cleanErrorMessage = (message: string): string => {
+    // Remove property names like "[body.email]" from validation errors
+    const cleaned = message.replace(/^\[.*?\]\s*/, '')
+    
+    // Provide user-friendly messages for common errors
+    if (cleaned.toLowerCase().includes('invalid email')) {
+      return 'Invalid email address'
+    }
+    if (cleaned.toLowerCase().includes('email')) {
+      return 'Email is already in use'
+    }
+    if (cleaned.toLowerCase().includes('password')) {
+      return 'Password must be at least 8 characters'
+    }
+    if (cleaned.toLowerCase().includes('invalid credentials') || cleaned.toLowerCase().includes('user not found')) {
+      return 'Email or password is incorrect'
+    }
+    if (cleaned.toLowerCase().includes('user already exists')) {
+      return 'This email is already registered'
+    }
+    
+    return cleaned || 'An error occurred. Please try again.'
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    setLoading(true)
+
+    try {
+      const result = isSignUp
+        ? signUp(email, password, name)
+        : signIn(email, password)
+
+      if (!result.success) {
+        setError(cleanErrorMessage(result.error || 'An error occurred'))
+        setLoading(false)
+        return
+      }
+
+      // Success - redirect
+      setLoading(false)
+      setTimeout(() => {
+        router.push('/')
+        router.refresh()
+      }, 100)
+    } catch (err) {
+      setError('An error occurred. Please try again.')
+      setLoading(false)
+    }
+  }
+
+  const formContent = (
+    <>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        {isSignUp && (
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              autoComplete="name"
+            />
+          </div>
+        )}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="password">Password</Label>
+          <Input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={8}
+            autoComplete={isSignUp ? 'new-password' : 'current-password'}
+          />
+        </div>
+
+        {error && (
+          <p className="text-sm text-destructive" role="alert">
+            {error}
+          </p>
+        )}
+
+        <Button type="submit" disabled={loading} className="w-full">
+          {loading
+            ? 'Please wait...'
+            : isSignUp
+              ? 'Create account'
+              : 'Sign in'}
+        </Button>
+      </form>
+
+      {onModeChange ? (
+        <button
+          type="button"
+          onClick={() => onModeChange(isSignUp ? 'login' : 'signup')}
+          className="text-sm text-muted-foreground text-center mt-6 w-full hover:text-foreground transition-colors"
+        >
+          {isSignUp ? 'Already have an account? ' : "Don't have an account? "}
+          <span className="text-foreground font-medium underline-offset-4 hover:underline">
+            {isSignUp ? 'Sign in' : 'Sign up'}
+          </span>
+        </button>
+      ) : (
+        <p className="text-sm text-muted-foreground text-center mt-6">
+          {isSignUp ? 'Already have an account? ' : "Don't have an account? "}
+          <Link
+            href={isSignUp ? '/auth/login' : '/auth/signup'}
+            className="text-foreground font-medium underline-offset-4 hover:underline"
+          >
+            {isSignUp ? 'Sign in' : 'Sign up'}
+          </Link>
+        </p>
+      )}
+    </>
+  )
+
+  if (isModal) {
+    return formContent
+  }
+
+  return (
+    <main className="min-h-svh bg-background flex items-center justify-center px-4">
+      <Card className="w-full max-w-sm p-6">
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+            {isSignUp ? 'Create an account' : 'Welcome back'}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {isSignUp ? 'Sign up to get started' : 'Sign in to your account to continue'}
+          </p>
+        </div>
+        {formContent}
+      </Card>
+    </main>
+  )
+}

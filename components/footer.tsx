@@ -5,7 +5,7 @@ export function Footer({ linkedinUrl }: { linkedinUrl: string }) {
     <footer className="border-t border-border/50 bg-background/50 py-4 text-center text-xs text-muted-foreground">
       <div className="space-y-2">
         <div className="flex items-center justify-center gap-2">
-          <span>© 2026 Travelway. All rights reserved.</span>
+          <span className="cursor-default select-none">© 2026 Travelway. All rights reserved.</span>
           <a
             href={linkedinUrl}
             target="_blank"
@@ -14,10 +14,10 @@ export function Footer({ linkedinUrl }: { linkedinUrl: string }) {
             aria-label="LinkedIn Profile of Hassan Yaqoob"
           >
             <ExternalLink className="size-3.5" />
-            <span className="hidden sm:inline">Connect with Hassan Yaqoob</span>
+            <span className="hidden cursor-pointer select-text sm:inline">Connect with Hassan Yaqoob</span>
           </a>
         </div>
-        <p className="text-[10px] text-muted-foreground/70">
+        <p className="cursor-default select-none text-[10px] text-muted-foreground/70">
           Built with AI and passion. Reach out on LinkedIn to collaborate or learn more.
         </p>
       </div>

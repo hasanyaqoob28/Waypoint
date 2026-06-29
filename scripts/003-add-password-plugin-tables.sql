@@ -1,0 +1,11 @@
+-- Better Auth Password Plugin Tables
+
+CREATE TABLE IF NOT EXISTS "password" (
+  id TEXT PRIMARY KEY,
+  userId TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+  hash TEXT NOT NULL,
+  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_password_userId ON "password"(userId);
