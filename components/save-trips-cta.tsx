@@ -14,11 +14,8 @@ export function SaveTripsCTA({ isLoggedIn }: SaveTripsCTAProps) {
   }
 
   return (
-    <div className="space-y-3">
-      <p className="text-xs text-muted-foreground">
-        ✓ You can create and explore unlimited trips without signing in.
-      </p>
-      <Card className="border-accent/30 bg-accent/5 p-4">
+    <Card className="border-accent/30 bg-accent/5 p-4">
+      <div className="space-y-3">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
             <Lock className="size-5 text-accent mt-0.5 flex-shrink-0" />
@@ -45,7 +42,10 @@ export function SaveTripsCTA({ isLoggedIn }: SaveTripsCTAProps) {
             </span>
           </div>
         </div>
-      </Card>
-    </div>
+        <p className="text-xs text-muted-foreground pt-2 border-t border-accent/20">
+          ✓ You can create and explore unlimited trips without signing in.
+        </p>
+      </div>
+    </Card>
   )
 }
