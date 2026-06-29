@@ -248,8 +248,6 @@ export function Dashboard({ userId }: DashboardProps) {
         {/* Left panel: the input */}
         <div className="space-y-5 lg:sticky lg:top-6">
           <IngestPanel onIngested={handleIngested} />
-          
-          <SaveTripsCTA isLoggedIn={demoIsLoggedIn} />
 
           {isLoading ? (
             <Skeleton className="h-32 w-full rounded-2xl" />
@@ -280,6 +278,11 @@ export function Dashboard({ userId }: DashboardProps) {
             <LivePreview />
           )}
         </div>
+      </div>
+
+      {/* Save trips CTA at bottom */}
+      <div className="mt-12 pt-8 border-t border-border">
+        <SaveTripsCTA isLoggedIn={demoIsLoggedIn} />
       </div>
 
       {/* Auth modal portal - rendered outside grid to be above all elements */}
