@@ -19,27 +19,23 @@ export function SaveTripsCTA({ isLoggedIn }: SaveTripsCTAProps) {
         <div className="flex items-start gap-2 flex-1 min-w-0">
           <Lock className="size-4 text-accent mt-0.5 flex-shrink-0" />
           <div className="min-w-0">
-            <h3 className="font-semibold text-foreground text-xs">
-              Save your trips
+            <h3 className="font-semibold text-xs">
+              <span className="text-foreground">Save your trips</span>
+              <span className="text-accent ml-1">[Coming soon]</span>
             </h3>
             <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">
               Create an account to save trips anytime, anywhere.
             </p>
           </div>
         </div>
-        <div className="flex-shrink-0 flex flex-col items-center gap-1">
-          <Button
-            disabled
-            size="xs"
-            variant="secondary"
-            className="opacity-50 cursor-not-allowed text-[11px]"
-          >
-            Sign in
-          </Button>
-          <span className="text-[9px] font-medium text-accent bg-accent/10 px-1.5 py-0.5 rounded">
-            Soon
-          </span>
-        </div>
+        <Button
+          disabled
+          size="xs"
+          variant="secondary"
+          className="opacity-50 cursor-not-allowed text-[11px] flex-shrink-0"
+        >
+          Sign in
+        </Button>
       </div>
     </Card>
   )
