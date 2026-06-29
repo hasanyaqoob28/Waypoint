@@ -14,7 +14,6 @@ import { LivePreview } from "@/components/live-preview"
 import { EventTimeline, getCurrentEventIndex } from "@/components/event-timeline"
 import { ContextMoment } from "@/components/context-moment"
 import { AnimatedDemo } from "@/components/animated-demo"
-import { SaveTripsCTA } from "@/components/save-trips-cta"
 import { AuthModalPortal } from "@/components/auth-modal-portal"
 import { DEMO_USER_ID } from "@/lib/constants"
 import { cn } from "@/lib/utils"
@@ -203,19 +202,13 @@ export function Dashboard({ userId }: DashboardProps) {
             <div className="relative mt-6 hidden lg:block">
               {/* Desktop: full marketing description + feature cards */}
               <div className="grid gap-6 lg:grid-cols-[1fr_280px] lg:items-start">
-                <div className="space-y-6">
-                  {/* Hero section with clear CTA */}
-                  <div className="space-y-3">
-                    <h1 className="text-2xl font-bold text-foreground">
-                      Your AI Travel Itinerary
-                    </h1>
-                    <p className="max-w-2xl text-[13px] leading-relaxed text-muted-foreground text-pretty lg:text-sm">
-                      Stop digging through emails on travel day. Paste your booking
-                      confirmations and Travelway AI becomes your single source of truth —
-                      telling you when to leave, which gate, what your baggage carousel is,
-                      and what to do during the gaps.
-                    </p>
-                  </div>
+                <div className="space-y-4">
+                  <p className="max-w-2xl text-[13px] leading-relaxed text-muted-foreground text-pretty lg:text-sm">
+                    Stop digging through emails on travel day. Paste your booking
+                    confirmations and Travelway AI becomes your single source of truth —
+                    telling you when to leave, which gate, what your baggage carousel is,
+                    and what to do during the gaps.
+                  </p>
                   
                   {/* Animated demo flow */}
                   <AnimatedDemo />
@@ -254,8 +247,6 @@ export function Dashboard({ userId }: DashboardProps) {
         {/* Left panel: the input */}
         <div className="space-y-5 lg:sticky lg:top-6">
           <IngestPanel onIngested={handleIngested} />
-
-          <SaveTripsCTA isLoggedIn={demoIsLoggedIn} />
 
           {isLoading ? (
             <Skeleton className="h-32 w-full rounded-2xl" />
