@@ -15,9 +15,9 @@ export function AuthModalOverlay({ isOpen, onClose }: AuthModalOverlayProps) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/20">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
       {/* Modal card - centered, using app's background color */}
-      <div className="w-full max-w-md mx-4 bg-background rounded-2xl shadow-2xl overflow-hidden border border-border">
+      <div className="relative z-50 w-full max-w-md mx-4 bg-background rounded-2xl shadow-2xl overflow-hidden border border-border">
         {/* Decorative top gradient */}
         <div className="h-1 bg-gradient-to-r from-accent via-accent/70 to-accent/50" />
         
