@@ -14,37 +14,32 @@ export function SaveTripsCTA({ isLoggedIn }: SaveTripsCTAProps) {
   }
 
   return (
-    <Card className="border-accent/30 bg-accent/5 p-4">
-      <div className="space-y-3">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <Lock className="size-5 text-accent mt-0.5 flex-shrink-0" />
-            <div>
-              <h3 className="font-semibold text-foreground text-sm">
-                Save your trips
-              </h3>
-              <p className="text-xs text-muted-foreground mt-1">
-                Create an account to save multiple trips and access them anytime from any device.
-              </p>
-            </div>
-          </div>
-          <div className="flex-shrink-0 flex flex-col items-center gap-1.5">
-            <Button
-              disabled
-              size="sm"
-              variant="secondary"
-              className="opacity-50 cursor-not-allowed"
-            >
-              Sign in
-            </Button>
-            <span className="text-[10px] font-medium text-accent bg-accent/10 px-2 py-0.5 rounded">
-              Coming soon
-            </span>
+    <Card className="border-accent/20 bg-accent/5 p-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-2 flex-1 min-w-0">
+          <Lock className="size-4 text-accent mt-0.5 flex-shrink-0" />
+          <div className="min-w-0">
+            <h3 className="font-semibold text-foreground text-xs">
+              Save your trips
+            </h3>
+            <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">
+              Create an account to save trips anytime, anywhere.
+            </p>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground pt-2 border-t border-accent/20">
-          ✓ You can create and explore unlimited trips without signing in.
-        </p>
+        <div className="flex-shrink-0 flex flex-col items-center gap-1">
+          <Button
+            disabled
+            size="xs"
+            variant="secondary"
+            className="opacity-50 cursor-not-allowed text-[11px]"
+          >
+            Sign in
+          </Button>
+          <span className="text-[9px] font-medium text-accent bg-accent/10 px-1.5 py-0.5 rounded">
+            Soon
+          </span>
+        </div>
       </div>
     </Card>
   )
