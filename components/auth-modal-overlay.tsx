@@ -15,34 +15,34 @@ export function AuthModalOverlay({ isOpen, onClose }: AuthModalOverlayProps) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Water/gradient background overlay */}
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+      {/* Transparent overlay with subtle tint - no blur */}
       <div 
-        className="absolute inset-0 bg-gradient-to-br from-blue-400/30 via-cyan-400/20 to-teal-400/30 backdrop-blur-md"
+        className="absolute inset-0 bg-black/20"
         onClick={onClose}
       />
       
-      {/* Modal card */}
-      <div className="relative z-10 w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden">
+      {/* Modal card - using app's background color */}
+      <div className="relative z-[10000] w-full max-w-md mx-4 bg-background rounded-2xl shadow-2xl overflow-hidden border border-border">
         {/* Decorative top gradient */}
-        <div className="h-1 bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-400" />
+        <div className="h-1 bg-gradient-to-r from-accent via-accent/70 to-accent/50" />
         
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="absolute top-4 right-4 z-20 p-2 hover:bg-muted rounded-lg transition-colors"
           aria-label="Close"
         >
-          <X className="w-5 h-5 text-gray-600" />
+          <X className="w-5 h-5 text-muted-foreground" />
         </button>
 
         {/* Content */}
         <div className="p-8">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-foreground">
               {mode === 'signup' ? 'Join Travelway' : 'Welcome Back'}
             </h1>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               {mode === 'signup' 
                 ? 'Create an account to save your trips'
                 : 'Sign in to access your trips'}
